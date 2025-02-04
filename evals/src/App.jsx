@@ -5,9 +5,8 @@ function App() {
   return (
     <div className="container">
       <div className="forms-container">
-        <ButtonForm name="(Variation A)" primaryColor="blue" />
-
-        <ButtonForm name="(Variation B)" primaryColor="red" />
+        <ButtonForm name="(Variation A)" />
+        <ButtonForm name="(Variation B)" />
       </div>
     </div>
   );

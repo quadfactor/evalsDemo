@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 
 function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
-  // Add default value
-  const colorClasses = ['green', 'blue', 'yellow', 'purple'];
+  const colorClasses = ['red', 'green', 'blue', 'yellow', 'purple'];
   // Button states
   const [buttonClass, setButtonClass] = useState(colorClasses[0]);
   const [isTextCentered, setIsTextCentered] = useState(true);
   const [textOffset, setTextOffset] = useState({ x: 0, y: 0 });
   const [buttonText, setButtonText] = useState('Click Me!');
+  const [selectedColor, setSelectedColor] = useState(primaryColor);
 
   // Settings states
   const [probability, setProbability] = useState(0.5);
@@ -45,10 +45,10 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
 
       // Color logic
       if (randomValue < probability) {
-        setButtonClass(primaryColor);
+        setButtonClass(selectedColor);
       } else {
         const availableColors = colorClasses.filter(
-          (color) => color !== primaryColor
+          (color) => color !== selectedColor
         );
         const colorIndex = Math.floor(Math.random() * availableColors.length);
         setButtonClass(availableColors[colorIndex]);
@@ -75,7 +75,7 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
     }, 1000 / fps);
 
     return () => clearInterval(interval);
-  }, [probability, fps, centerProb, spellingProb, primaryColor]);
+  }, [probability, fps, centerProb, spellingProb, selectedColor]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -103,6 +103,20 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
         </div>
         <div className="slider-controls">
           <div className="slider-group">
+            <span>Primary Color:</span>
+            <select
+              className="color-select"
+              value={selectedColor}
+              onChange={(e) => setSelectedColor(e.target.value)}
+            >
+              {colorClasses.map((color) => (
+                <option key={color} value={color}>
+                  {color.charAt(0).toUpperCase() + color.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="slider-group">
             <span>Update rate:</span>
             <input
               type="range"
@@ -115,7 +129,7 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
             <span>{fps} FPS</span>
           </div>
           <div className="slider-group">
-            <span>{primaryColor} probability:</span>
+            <span>{selectedColor} probability:</span>
             <input
               type="range"
               min="0"
