@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
-function ButtonForm() {
+function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
+  // Add default value
   const colorClasses = ['green', 'blue', 'yellow', 'purple'];
   // Button states
   const [buttonClass, setButtonClass] = useState(colorClasses[0]);
@@ -19,6 +20,8 @@ function ButtonForm() {
     name: '',
     email: '',
   });
+
+  const [isPanelOpen, setIsPanelOpen] = useState(true);
 
   const getMisspelledText = () => {
     const variants = [
@@ -42,10 +45,13 @@ function ButtonForm() {
 
       // Color logic
       if (randomValue < probability) {
-        setButtonClass('red');
+        setButtonClass(primaryColor);
       } else {
-        const colorIndex = Math.floor(Math.random() * colorClasses.length);
-        setButtonClass(colorClasses[colorIndex]);
+        const availableColors = colorClasses.filter(
+          (color) => color !== primaryColor
+        );
+        const colorIndex = Math.floor(Math.random() * availableColors.length);
+        setButtonClass(availableColors[colorIndex]);
       }
 
       // Text alignment logic
@@ -69,7 +75,7 @@ function ButtonForm() {
     }, 1000 / fps);
 
     return () => clearInterval(interval);
-  }, [probability, fps, centerProb, spellingProb]);
+  }, [probability, fps, centerProb, spellingProb, primaryColor]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -85,8 +91,16 @@ function ButtonForm() {
 
   return (
     <>
-      <div className="settings-panel">
-        <h3 className="settings-title">Control Panel</h3>
+      <div className={`settings-panel ${!isPanelOpen ? 'collapsed' : ''}`}>
+        <div className="settings-header">
+          <h3 className="settings-title">Control Panel {name}</h3>
+          <button
+            className="collapse-button"
+            onClick={() => setIsPanelOpen(!isPanelOpen)}
+          >
+            {isPanelOpen ? '−' : '+'}
+          </button>
+        </div>
         <div className="slider-controls">
           <div className="slider-group">
             <span>Update rate:</span>
@@ -101,7 +115,7 @@ function ButtonForm() {
             <span>{fps} FPS</span>
           </div>
           <div className="slider-group">
-            <span>Red probability:</span>
+            <span>{primaryColor} probability:</span>
             <input
               type="range"
               min="0"

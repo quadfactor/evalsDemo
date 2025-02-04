@@ -57,6 +57,46 @@
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   align-self: stretch;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.settings-panel.collapsed .slider-controls {
+  height: 0;
+  opacity: 0;
+}
+
+.settings-panel .slider-controls {
+  height: auto;
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.collapse-button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.collapse-button:hover {
+  opacity: 1;
+  background-color: #f8f8f8;
 }
 
 .settings-title {
