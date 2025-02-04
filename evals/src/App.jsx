@@ -4,7 +4,11 @@ import './App.css';
 function App() {
   return (
     <div className="container">
-      <ButtonForm name="(Control)" primaryColor="blue" />
+      <div className="forms-container">
+        <ButtonForm name="(Variation A)" primaryColor="blue" />
+
+        <ButtonForm name="(Variation B)" primaryColor="red" />
+      </div>
     </div>
   );
 }
