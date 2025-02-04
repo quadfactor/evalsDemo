@@ -11,6 +11,10 @@ function App() {
   const [textOffset, setTextOffset] = useState({ x: 0, y: 0 });
   const [spellingProb, setSpellingProb] = useState(1);
   const [buttonText, setButtonText] = useState('Click Me!');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+  });
 
   const getMisspelledText = () => {
     const variants = [
@@ -63,6 +67,18 @@ function App() {
     return () => clearInterval(interval);
   }, [probability, fps, centerProb, spellingProb]);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    alert(`Form submitted!\nName: ${formData.name}\nEmail: ${formData.email}`);
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   return (
     <div className="container">
       <div className="controls">
@@ -111,20 +127,45 @@ function App() {
           <span>{Math.round(spellingProb * 100)}% correct spelling</span>
         </div>
       </div>
-      <button
-        className={`cta-button ${buttonClass} ${
-          isTextCentered ? 'text-centered' : ''
-        }`}
-        style={
-          !isTextCentered
-            ? {
-                transform: `translate(${textOffset.x}px, ${textOffset.y}px)`,
-              }
-            : undefined
-        }
-      >
-        {buttonText}
-      </button>
+      <form onSubmit={handleSubmit} className="button-form">
+        <div className="form-group">
+          <input
+            type="text"
+            name="name"
+            placeholder="Your Name"
+            value={formData.name}
+            onChange={handleInputChange}
+            className="form-input"
+            required
+          />
+        </div>
+        <div className="form-group">
+          <input
+            type="email"
+            name="email"
+            placeholder="Your Email"
+            value={formData.email}
+            onChange={handleInputChange}
+            className="form-input"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          className={`cta-button ${buttonClass} ${
+            isTextCentered ? 'text-centered' : ''
+          }`}
+          style={
+            !isTextCentered
+              ? {
+                  transform: `translate(${textOffset.x}px, ${textOffset.y}px)`,
+                }
+              : undefined
+          }
+        >
+          {buttonText}
+        </button>
+      </form>
     </div>
   );
 }
