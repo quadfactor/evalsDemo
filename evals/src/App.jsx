@@ -81,50 +81,57 @@ function App() {
 
   return (
     <div className="container">
-      <div className="controls">
-        <div className="slider-group">
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={probability}
-            onChange={(e) => setProbability(e.target.value)}
-          />
-          <span>{Math.round(probability * 100)}% red probability</span>
-        </div>
-        <div className="slider-group">
-          <input
-            type="range"
-            min="1"
-            max="30"
-            step="1"
-            value={fps}
-            onChange={(e) => setFps(Number(e.target.value))}
-          />
-          <span>{fps} FPS</span>
-        </div>
-        <div className="slider-group">
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={centerProb}
-            onChange={(e) => setCenterProb(Number(e.target.value))}
-          />
-          <span>{Math.round(centerProb * 100)}% center probability</span>
-        </div>
-        <div className="slider-group">
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={spellingProb}
-            onChange={(e) => setSpellingProb(Number(e.target.value))}
-          />
-          <span>{Math.round(spellingProb * 100)}% correct spelling</span>
+      <div className="settings-panel">
+        <h3 className="settings-title">Control Panel</h3>
+        <div className="slider-controls">
+          <div className="slider-group">
+            <span>Red probability:</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={probability}
+              onChange={(e) => setProbability(e.target.value)}
+            />
+            <span>{Math.round(probability * 100)}%</span>
+          </div>
+          <div className="slider-group">
+            <span>Update rate:</span>
+            <input
+              type="range"
+              min="1"
+              max="30"
+              step="1"
+              value={fps}
+              onChange={(e) => setFps(Number(e.target.value))}
+            />
+            <span>{fps} FPS</span>
+          </div>
+          <div className="slider-group">
+            <span>Center probability:</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={centerProb}
+              onChange={(e) => setCenterProb(Number(e.target.value))}
+            />
+            <span>{Math.round(centerProb * 100)}%</span>
+          </div>
+          <div className="slider-group">
+            <span>Correct spelling:</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={spellingProb}
+              onChange={(e) => setSpellingProb(Number(e.target.value))}
+            />
+            <span>{Math.round(spellingProb * 100)}%</span>
+          </div>
         </div>
       </div>
       <form onSubmit={handleSubmit} className="button-form">

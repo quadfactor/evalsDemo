@@ -44,22 +44,52 @@
 .container {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 2rem;
   padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.controls {
+.settings-panel {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  align-self: stretch;
+}
+
+.settings-title {
+  /* color: white; */
+  margin: 0 0 1rem 0;
+  text-align: left;
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.slider-controls {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 1rem;
+  align-items: flex-start;
 }
 
 .slider-group {
-  display: flex;
+  display: grid;
+  grid-template-columns: 150px 200px 60px;
   align-items: center;
   gap: 1rem;
+  width: 100%;
+}
+
+.slider-group span {
+  /* color: white; */
+  opacity: 0.8;
+  text-align: left;
+}
+
+.slider-group span:last-child {
+  text-align: right;
 }
 
 .cta-button {
