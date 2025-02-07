@@ -6,7 +6,6 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
   const [buttonClass, setButtonClass] = useState(colorClasses[0]);
   const [isTextCentered, setIsTextCentered] = useState(true);
   const [textOffset, setTextOffset] = useState({ x: 0, y: 0 });
-  const [buttonText, setButtonText] = useState('Click Me!');
   const [selectedColor, setSelectedColor] = useState(primaryColor);
 
   // Settings states
@@ -23,18 +22,29 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
 
   const [isPanelOpen, setIsPanelOpen] = useState(true);
 
-  const getMisspelledText = () => {
-    const variants = [
-      'Clik Me!',
-      'Click Mee!',
-      'Clikc Me!',
-      'Clck Me!',
-      'Click M!',
-      'Klik Me!',
-      'Click mei!',
-      'Clik Meh!',
+  const [baseButtonText, setBaseButtonText] = useState('Click Me!');
+  const [buttonText, setButtonText] = useState(baseButtonText);
+
+  const generateMisspelling = (text) => {
+    const modifications = [
+      (str) => str.replace(/[aeiou]/i, ''), // Remove random vowel
+      (str) => str.replace(/(.)(.*)/i, '$2$1'), // Move first letter to end
+      (str) => str.replace(/(.)/i, '$1$1'), // Double a random letter
+      (str) => str.replace(/\s+/g, ''), // Remove spaces
+      (str) =>
+        str.replace(/([a-z])/i, (char) =>
+          char === char.toLowerCase() ? char.toUpperCase() : char.toLowerCase()
+        ), // Random case
+      (str) =>
+        str.replace(
+          /[aeiou]/i,
+          (vowel) => 'aeiou'[Math.floor(Math.random() * 5)]
+        ), // Replace vowel
     ];
-    return variants[Math.floor(Math.random() * variants.length)];
+
+    const modification =
+      modifications[Math.floor(Math.random() * modifications.length)];
+    return modification(text);
   };
 
   useEffect(() => {
@@ -66,16 +76,23 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
         setIsTextCentered(false);
       }
 
-      // Spelling logic
+      // Updated spelling logic
       if (spellingValue < spellingProb) {
-        setButtonText('Click Me!');
+        setButtonText(baseButtonText);
       } else {
-        setButtonText(getMisspelledText());
+        setButtonText(generateMisspelling(baseButtonText));
       }
     }, 1000 / fps);
 
     return () => clearInterval(interval);
-  }, [probability, fps, centerProb, spellingProb, selectedColor]);
+  }, [
+    probability,
+    fps,
+    centerProb,
+    spellingProb,
+    selectedColor,
+    baseButtonText,
+  ]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -163,6 +180,16 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
               onChange={(e) => setSpellingProb(Number(e.target.value))}
             />
             <span>{Math.round(spellingProb * 100)}%</span>
+          </div>
+          <div className="slider-group">
+            <span>Button Text:</span>
+            <input
+              type="text"
+              className="form-input"
+              value={baseButtonText}
+              onChange={(e) => setBaseButtonText(e.target.value)}
+              placeholder="Enter button text"
+            />
           </div>
         </div>
       </div>
