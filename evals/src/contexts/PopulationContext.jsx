@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import { createContext, useState, useCallback } from 'react';
 
 export const PopulationContext = createContext();
 
@@ -13,13 +13,19 @@ export function PopulationProvider({ children }) {
     spellingImpact: 0, // Can be negative or positive
     populationSize: 10000, // Default population size
     fps: 3, // Global FPS setting
+    performanceMode: true, // New parameter to control optimization
   });
+
+  // Optimize parameter updates to reduce re-renders
+  const setParamsOptimized = useCallback((updater) => {
+    setParams(updater);
+  }, []);
 
   const [isRunning, setIsRunning] = useState(true);
 
   return (
     <PopulationContext.Provider
-      value={{ params, setParams, isRunning, setIsRunning }}
+      value={{ params, setParams: setParamsOptimized, isRunning, setIsRunning }}
     >
       {children}
     </PopulationContext.Provider>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useMemo } from 'react';
 import ButtonForm from './components/ButtonForm';
 import Results from './components/Results';
 import PopulationSettings from './components/PopulationSettings';
@@ -21,6 +21,15 @@ function AppContent() {
   const [clicksB, setClicksB] = useState(0);
   const [probabilityB, setProbabilityB] = useState(0);
 
+  // For high-volume processing in batches
+  const processBatchSize = useMemo(() => {
+    // Dynamically adjust batch size based on FPS
+    if (params.fps <= 30) return 1;
+    if (params.fps <= 100) return 5;
+    if (params.fps <= 500) return 20;
+    return 50; // For extremely high fps
+  }, [params.fps]);
+
   // Reset all simulation stats
   const resetAllStats = () => {
     setImpressionsA(0);
@@ -31,23 +40,26 @@ function AppContent() {
     setProbabilityB(0);
   };
 
-  // Population distribution logic
+  // Population distribution logic with batch processing
   useEffect(() => {
     if (!isRunning) return;
 
     const interval = setInterval(() => {
-      // Randomly assign a user to either variation A or B
-      if (Math.random() < 0.5) {
-        // Assign to variation A
-        setImpressionsA((prev) => prev + 1);
-      } else {
-        // Assign to variation B
-        setImpressionsB((prev) => prev + 1);
+      // Process a batch of users at once for high FPS settings
+      for (let i = 0; i < processBatchSize; i++) {
+        // Randomly assign a user to either variation A or B
+        if (Math.random() < 0.5) {
+          // Assign to variation A
+          setImpressionsA((prev) => prev + 1);
+        } else {
+          // Assign to variation B
+          setImpressionsB((prev) => prev + 1);
+        }
       }
-    }, 1000 / params.fps);
+    }, 1000 / (params.fps / processBatchSize)); // Adjusted interval for batch size
 
     return () => clearInterval(interval);
-  }, [isRunning, params.fps]);
+  }, [isRunning, params.fps, processBatchSize]);
 
   return (
     <div className="container">

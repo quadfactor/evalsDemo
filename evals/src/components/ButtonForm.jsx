@@ -112,83 +112,146 @@ function ButtonForm({
     return false;
   };
 
+  // For efficient tracking of impression processing
+  const [lastProcessedImpression, setLastProcessedImpression] = useState(0);
+
+  // Batch processing of impressions
   useEffect(() => {
-    // No need to run the simulation if there are no impressions to process
-    if (!isRunning || impressions === 0) return;
+    if (!isRunning || impressions === lastProcessedImpression) return;
 
-    let timeoutId;
+    // Process new impressions
+    const newImpressionsCount = impressions - lastProcessedImpression;
 
-    // Generate all random values at once to ensure consistency
-    const randomValue = Math.random();
-    const centerValue = Math.random();
-    const spellingValue = Math.random();
+    // Calculate average probability across all new impressions
+    let totalProbability = 0;
+    let totalClicks = 0;
 
-    // Color logic - capture the new value before state update
-    let newButtonClass;
-    if (randomValue < probability) {
-      newButtonClass = selectedColor;
-    } else {
-      const availableColors = colorClasses.filter(
-        (color) => color !== selectedColor
+    for (let i = 0; i < newImpressionsCount; i++) {
+      // Generate all random values at once to ensure consistency
+      const randomValue = Math.random();
+      const centerValue = Math.random();
+      const spellingValue = Math.random();
+
+      // Determine button state for this impression
+      let currentButtonClass;
+      if (randomValue < probability) {
+        currentButtonClass = selectedColor;
+      } else {
+        const availableColors = colorClasses.filter(
+          (color) => color !== selectedColor
+        );
+        const colorIndex = Math.floor(Math.random() * availableColors.length);
+        currentButtonClass = availableColors[colorIndex];
+      }
+
+      // Determine text alignment
+      const isCurrentTextCentered = centerValue < centerProb;
+
+      // Determine spelling
+      const currentButtonText =
+        spellingValue < spellingProb
+          ? baseButtonText
+          : generateMisspelling(baseButtonText);
+
+      // Calculate click probability for this impression
+      const clickProbability = calculateClickProbability(
+        currentButtonClass,
+        isCurrentTextCentered,
+        currentButtonText
       );
-      const colorIndex = Math.floor(Math.random() * availableColors.length);
-      newButtonClass = availableColors[colorIndex];
+
+      // Add to total
+      totalProbability += clickProbability;
+
+      // Simulate click
+      if (Math.random() < clickProbability) {
+        totalClicks++;
+      }
     }
-    setButtonClass(newButtonClass);
 
-    // Text alignment logic - capture new values before state update
-    let newTextCentered;
-    let newOffset;
-    if (centerValue < centerProb) {
-      newOffset = { x: 0, y: 0 };
-      newTextCentered = true;
-    } else {
-      newOffset = {
-        x: (Math.random() - 0.5) * 40,
-        y: (Math.random() - 0.5) * 20,
-      };
-      newTextCentered = false;
+    // Update UI with the most recent state only
+    if (newImpressionsCount > 0) {
+      const lastImpressionButtonClass =
+        Math.random() < probability
+          ? selectedColor
+          : colorClasses[Math.floor(Math.random() * colorClasses.length)];
+
+      const lastImpressionCentered = Math.random() < centerProb;
+
+      const lastImpressionText =
+        Math.random() < spellingProb
+          ? baseButtonText
+          : generateMisspelling(baseButtonText);
+
+      setButtonClass(lastImpressionButtonClass);
+      setIsTextCentered(lastImpressionCentered);
+      setTextOffset(
+        lastImpressionCentered
+          ? { x: 0, y: 0 }
+          : { x: (Math.random() - 0.5) * 40, y: (Math.random() - 0.5) * 20 }
+      );
+      setButtonText(lastImpressionText);
     }
-    setTextOffset(newOffset);
-    setIsTextCentered(newTextCentered);
 
-    // Updated spelling logic - capture new value before state update
-    let newButtonText;
-    if (spellingValue < spellingProb) {
-      newButtonText = baseButtonText;
-    } else {
-      newButtonText = generateMisspelling(baseButtonText);
+    // Report average probability
+    if (newImpressionsCount > 0) {
+      const avgProbability = totalProbability / newImpressionsCount;
+      onProbabilityChange(avgProbability);
     }
-    setButtonText(newButtonText);
 
-    // Simulate user interaction with the new values we just calculated
-    // This ensures we're using the values that will be displayed to the user
-    timeoutId = setTimeout(() => {
-      simulateUserInteraction(newButtonClass, newTextCentered, newButtonText);
-    }, 50);
+    // Trigger clicks
+    if (totalClicks > 0) {
+      // Use requestAnimationFrame for smoother UI updates
+      requestAnimationFrame(() => {
+        for (let i = 0; i < totalClicks; i++) {
+          onClick();
+        }
+      });
+    }
 
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [
-    probability,
-    centerProb,
-    spellingProb,
-    selectedColor,
-    baseButtonText,
-    params.baseClickRate,
-    params.colorPreference,
-    params.colorImpact,
-    params.centerPreference,
-    params.centerImpact,
-    params.spellingPreference,
-    params.spellingImpact,
-    params.fps,
-    onClick,
-    onProbabilityChange,
-    isRunning,
-    impressions, // Add impressions as a dependency
-  ]);
+    // Update processed impressions
+    setLastProcessedImpression(impressions);
+  }, [impressions, isRunning]);
+
+  // Extracted calculation function for reuse
+  const calculateClickProbability = (
+    currentButtonClass,
+    isCurrentTextCentered,
+    currentButtonText
+  ) => {
+    // Start with base click rate
+    let baseClickRate = params.baseClickRate;
+    let multiplier = 1.0;
+
+    // Color impact
+    const hasPreferredColor = currentButtonClass === 'red';
+    if (Math.random() < params.colorPreference) {
+      if (hasPreferredColor) {
+        multiplier *= 1 + params.colorImpact;
+      }
+    }
+
+    // Text centering impact
+    if (Math.random() < params.centerPreference) {
+      if (isCurrentTextCentered) {
+        multiplier *= 1 + params.centerImpact;
+      }
+    }
+
+    // Spelling impact
+    const hasCorrectSpelling = currentButtonText === baseButtonText;
+    if (Math.random() < params.spellingPreference) {
+      if (hasCorrectSpelling) {
+        multiplier *= 1 + params.spellingImpact;
+      }
+    }
+
+    // Apply multiplier
+    let clickProbability = baseClickRate * multiplier;
+
+    // Ensure valid range
+    return Math.max(0, Math.min(1, clickProbability));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
