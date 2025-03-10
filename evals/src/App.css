@@ -316,3 +316,20 @@ input[type='range'] {
 .reset-button:hover {
   background: #666;
 }
+
+/* Add styling for impact sliders */
+.impact-slider {
+  position: relative;
+}
+
+.impact-slider::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 10px;
+  width: 2px;
+  background-color: rgba(0, 0, 0, 0.3);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}

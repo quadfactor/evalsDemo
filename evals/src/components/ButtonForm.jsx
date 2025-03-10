@@ -65,7 +65,7 @@ function ButtonForm({
     if (Math.random() < params.colorPreference) {
       // This user cares about red color
       clickProbability += hasPreferredColor
-        ? params.colorImpact
+        ? params.colorImpact // This can now be negative or positive
         : -params.colorImpact;
     }
 
@@ -73,7 +73,7 @@ function ButtonForm({
     if (Math.random() < params.centerPreference) {
       // This user cares about alignment
       clickProbability += isTextCentered
-        ? params.centerImpact
+        ? params.centerImpact // This can now be negative or positive
         : -params.centerImpact;
     }
 
@@ -82,7 +82,7 @@ function ButtonForm({
     if (Math.random() < params.spellingPreference) {
       // This user cares about spelling
       clickProbability += hasCorrectSpelling
-        ? params.spellingImpact
+        ? params.spellingImpact // This can now be negative or positive
         : -params.spellingImpact;
     }
 

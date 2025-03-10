@@ -9,6 +9,12 @@ function PopulationSettings() {
     setParams((prev) => ({ ...prev, [key]: Number(value) }));
   };
 
+  // Format impact values to show sign
+  const formatImpact = (value) => {
+    const sign = value >= 0 ? '+' : '';
+    return `${sign}${(value * 100).toFixed(0)}%`;
+  };
+
   return (
     <div className={`settings-panel ${!isPanelOpen ? 'collapsed' : ''}`}>
       <div className="settings-header">
@@ -53,13 +59,13 @@ function PopulationSettings() {
           <span>Color impact:</span>
           <input
             type="range"
-            min="0"
+            min="-0.5"
             max="0.5"
             step="0.05"
             value={params.colorImpact}
             onChange={(e) => handleParamChange('colorImpact', e.target.value)}
           />
-          <span>±{Math.round(params.colorImpact * 100)}%</span>
+          <span>{formatImpact(params.colorImpact)}</span>
         </div>
 
         <div className="slider-group">
@@ -81,13 +87,13 @@ function PopulationSettings() {
           <span>Center impact:</span>
           <input
             type="range"
-            min="0"
+            min="-0.5"
             max="0.5"
             step="0.05"
             value={params.centerImpact}
             onChange={(e) => handleParamChange('centerImpact', e.target.value)}
           />
-          <span>±{Math.round(params.centerImpact * 100)}%</span>
+          <span>{formatImpact(params.centerImpact)}</span>
         </div>
 
         <div className="slider-group">
@@ -109,7 +115,7 @@ function PopulationSettings() {
           <span>Spelling impact:</span>
           <input
             type="range"
-            min="0"
+            min="-0.5"
             max="0.5"
             step="0.05"
             value={params.spellingImpact}
@@ -117,7 +123,7 @@ function PopulationSettings() {
               handleParamChange('spellingImpact', e.target.value)
             }
           />
-          <span>±{Math.round(params.spellingImpact * 100)}%</span>
+          <span>{formatImpact(params.spellingImpact)}</span>
         </div>
       </div>
     </div>
