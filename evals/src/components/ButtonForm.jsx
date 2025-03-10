@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { PopulationContext } from '../contexts/PopulationContext';
 
 function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
+  const { params } = useContext(PopulationContext);
   const colorClasses = ['red', 'green', 'blue', 'yellow', 'purple'];
   // Button states
   const [buttonClass, setButtonClass] = useState(colorClasses[0]);
@@ -24,15 +26,6 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
 
   const [baseButtonText, setBaseButtonText] = useState('Click Me!');
   const [buttonText, setButtonText] = useState(baseButtonText);
-
-  // Population preference states
-  const [colorPreference, setColorPreference] = useState(0.3); // % of users who prefer this color
-  const [colorImpact, setColorImpact] = useState(0.2); // How much this preference affects click rate
-  const [centerPreference, setCenterPreference] = useState(0.4); // % of users who prefer centered text
-  const [centerImpact, setCenterImpact] = useState(0.15); // How much centering affects click rate
-  const [spellingPreference, setSpellingPreference] = useState(0.6); // % of users who prefer correct spelling
-  const [spellingImpact, setSpellingImpact] = useState(0.25); // How much spelling affects click rate
-  const [baseClickRate, setBaseClickRate] = useState(0.3); // Base click rate (30%)
 
   // Stats
   const [impressions, setImpressions] = useState(0);
@@ -64,26 +57,32 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
   // Calculate if user would click based on current button state
   const simulateUserInteraction = () => {
     // Base chance
-    let clickProbability = baseClickRate;
+    let clickProbability = params.baseClickRate;
 
     // Color impact
     const hasPreferredColor = buttonClass === selectedColor;
-    if (Math.random() < colorPreference) {
+    if (Math.random() < params.colorPreference) {
       // This user cares about color
-      clickProbability += hasPreferredColor ? colorImpact : -colorImpact;
+      clickProbability += hasPreferredColor
+        ? params.colorImpact
+        : -params.colorImpact;
     }
 
     // Text centering impact
-    if (Math.random() < centerPreference) {
+    if (Math.random() < params.centerPreference) {
       // This user cares about alignment
-      clickProbability += isTextCentered ? centerImpact : -centerImpact;
+      clickProbability += isTextCentered
+        ? params.centerImpact
+        : -params.centerImpact;
     }
 
     // Spelling impact
     const hasCorrectSpelling = buttonText === baseButtonText;
-    if (Math.random() < spellingPreference) {
+    if (Math.random() < params.spellingPreference) {
       // This user cares about spelling
-      clickProbability += hasCorrectSpelling ? spellingImpact : -spellingImpact;
+      clickProbability += hasCorrectSpelling
+        ? params.spellingImpact
+        : -params.spellingImpact;
     }
 
     // Ensure probability is within valid range
@@ -153,13 +152,13 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
     spellingProb,
     selectedColor,
     baseButtonText,
-    baseClickRate,
-    colorPreference,
-    colorImpact,
-    centerPreference,
-    centerImpact,
-    spellingPreference,
-    spellingImpact,
+    params.baseClickRate,
+    params.colorPreference,
+    params.colorImpact,
+    params.centerPreference,
+    params.centerImpact,
+    params.spellingPreference,
+    params.spellingImpact,
   ]);
 
   const handleSubmit = (e) => {
@@ -263,98 +262,6 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
               onChange={(e) => setBaseButtonText(e.target.value)}
               placeholder="Enter button text"
             />
-          </div>
-          <div className="section-header">Population Parameters</div>
-
-          <div className="slider-group">
-            <span>Base click rate:</span>
-            <input
-              type="range"
-              min="0.05"
-              max="0.6"
-              step="0.05"
-              value={baseClickRate}
-              onChange={(e) => setBaseClickRate(Number(e.target.value))}
-            />
-            <span>{Math.round(baseClickRate * 100)}%</span>
-          </div>
-
-          <div className="slider-group">
-            <span>Color preference:</span>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={colorPreference}
-              onChange={(e) => setColorPreference(Number(e.target.value))}
-            />
-            <span>{Math.round(colorPreference * 100)}%</span>
-          </div>
-
-          <div className="slider-group">
-            <span>Color impact:</span>
-            <input
-              type="range"
-              min="0"
-              max="0.5"
-              step="0.05"
-              value={colorImpact}
-              onChange={(e) => setColorImpact(Number(e.target.value))}
-            />
-            <span>±{Math.round(colorImpact * 100)}%</span>
-          </div>
-
-          <div className="slider-group">
-            <span>Center preference:</span>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={centerPreference}
-              onChange={(e) => setCenterPreference(Number(e.target.value))}
-            />
-            <span>{Math.round(centerPreference * 100)}%</span>
-          </div>
-
-          <div className="slider-group">
-            <span>Center impact:</span>
-            <input
-              type="range"
-              min="0"
-              max="0.5"
-              step="0.05"
-              value={centerImpact}
-              onChange={(e) => setCenterImpact(Number(e.target.value))}
-            />
-            <span>±{Math.round(centerImpact * 100)}%</span>
-          </div>
-
-          <div className="slider-group">
-            <span>Spelling preference:</span>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={spellingPreference}
-              onChange={(e) => setSpellingPreference(Number(e.target.value))}
-            />
-            <span>{Math.round(spellingPreference * 100)}%</span>
-          </div>
-
-          <div className="slider-group">
-            <span>Spelling impact:</span>
-            <input
-              type="range"
-              min="0"
-              max="0.5"
-              step="0.05"
-              value={spellingImpact}
-              onChange={(e) => setSpellingImpact(Number(e.target.value))}
-            />
-            <span>±{Math.round(spellingImpact * 100)}%</span>
           </div>
         </div>
       </div>
