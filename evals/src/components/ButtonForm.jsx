@@ -122,98 +122,140 @@ function ButtonForm({
     // Process new impressions
     const newImpressionsCount = impressions - lastProcessedImpression;
 
-    // Calculate average probability across all new impressions
+    // For high performance mode, batch process all new impressions
+    if (params.performanceMode && newImpressionsCount > 1) {
+      // Calculate average probability and simulate clicks
+      processImpressionsBatch(newImpressionsCount);
+    } else {
+      // Process impressions one by one for more accurate simulation
+      for (let i = 0; i < newImpressionsCount; i++) {
+        simulateSingleImpression();
+      }
+    }
+
+    // Update the last processed impression count
+    setLastProcessedImpression(impressions);
+  }, [impressions, isRunning, params.performanceMode]);
+
+  // New helper function to simulate a single impression
+  const simulateSingleImpression = () => {
+    // Generate all random values at once to ensure consistency
+    const randomValue = Math.random();
+    const centerValue = Math.random();
+    const spellingValue = Math.random();
+
+    // Determine button state for this impression
+    const currentButtonClass = getButtonClass(randomValue);
+    const isCurrentTextCentered = centerValue < centerProb;
+    const currentButtonText = getButtonText(spellingValue);
+
+    // Update UI for this impression
+    setButtonClass(currentButtonClass);
+    setIsTextCentered(isCurrentTextCentered);
+    setTextOffset(getTextOffset(isCurrentTextCentered));
+    setButtonText(currentButtonText);
+
+    // Calculate probability and determine click
+    const clickProbability = calculateClickProbability(
+      currentButtonClass,
+      isCurrentTextCentered,
+      currentButtonText
+    );
+
+    // Update parent with current probability
+    onProbabilityChange(clickProbability);
+
+    // Simulate click if probability threshold is met
+    if (Math.random() < clickProbability) {
+      onClick();
+    }
+  };
+
+  // Helper function for batch processing
+  const processImpressionsBatch = (count) => {
     let totalProbability = 0;
     let totalClicks = 0;
 
-    for (let i = 0; i < newImpressionsCount; i++) {
-      // Generate all random values at once to ensure consistency
+    // Process all impressions but only update UI with the last one
+    for (let i = 0; i < count; i++) {
       const randomValue = Math.random();
       const centerValue = Math.random();
       const spellingValue = Math.random();
 
-      // Determine button state for this impression
-      let currentButtonClass;
-      if (randomValue < probability) {
-        currentButtonClass = selectedColor;
-      } else {
-        const availableColors = colorClasses.filter(
-          (color) => color !== selectedColor
-        );
-        const colorIndex = Math.floor(Math.random() * availableColors.length);
-        currentButtonClass = availableColors[colorIndex];
+      // Calculate state for this impression
+      const currentButtonClass = getButtonClass(randomValue);
+      const isCurrentTextCentered = centerValue < centerProb;
+      const currentButtonText = getButtonText(spellingValue);
+
+      // If this is the last impression, update the UI
+      if (i === count - 1) {
+        setButtonClass(currentButtonClass);
+        setIsTextCentered(isCurrentTextCentered);
+        setTextOffset(getTextOffset(isCurrentTextCentered));
+        setButtonText(currentButtonText);
       }
 
-      // Determine text alignment
-      const isCurrentTextCentered = centerValue < centerProb;
-
-      // Determine spelling
-      const currentButtonText =
-        spellingValue < spellingProb
-          ? baseButtonText
-          : generateMisspelling(baseButtonText);
-
-      // Calculate click probability for this impression
+      // Calculate probability for this impression
       const clickProbability = calculateClickProbability(
         currentButtonClass,
         isCurrentTextCentered,
         currentButtonText
       );
 
-      // Add to total
       totalProbability += clickProbability;
 
-      // Simulate click
+      // Determine if this impression would result in a click
       if (Math.random() < clickProbability) {
         totalClicks++;
       }
     }
 
-    // Update UI with the most recent state only
-    if (newImpressionsCount > 0) {
-      const lastImpressionButtonClass =
-        Math.random() < probability
-          ? selectedColor
-          : colorClasses[Math.floor(Math.random() * colorClasses.length)];
-
-      const lastImpressionCentered = Math.random() < centerProb;
-
-      const lastImpressionText =
-        Math.random() < spellingProb
-          ? baseButtonText
-          : generateMisspelling(baseButtonText);
-
-      setButtonClass(lastImpressionButtonClass);
-      setIsTextCentered(lastImpressionCentered);
-      setTextOffset(
-        lastImpressionCentered
-          ? { x: 0, y: 0 }
-          : { x: (Math.random() - 0.5) * 40, y: (Math.random() - 0.5) * 20 }
-      );
-      setButtonText(lastImpressionText);
-    }
-
-    // Report average probability
-    if (newImpressionsCount > 0) {
-      const avgProbability = totalProbability / newImpressionsCount;
-      onProbabilityChange(avgProbability);
-    }
+    // Report average probability to parent
+    const avgProbability = totalProbability / count;
+    onProbabilityChange(avgProbability);
 
     // Trigger clicks
     if (totalClicks > 0) {
-      // Use requestAnimationFrame for smoother UI updates
-      requestAnimationFrame(() => {
-        for (let i = 0; i < totalClicks; i++) {
-          onClick();
-        }
-      });
+      // Use batched updates for better performance
+      onClick(totalClicks);
     }
+  };
 
-    // Update processed impressions
-    setLastProcessedImpression(impressions);
-  }, [impressions, isRunning]);
+  // Helper to get button class based on random value
+  const getButtonClass = (randomValue) => {
+    if (randomValue < probability) {
+      return selectedColor;
+    } else {
+      const availableColors = colorClasses.filter(
+        (color) => color !== selectedColor
+      );
+      const colorIndex = Math.floor(Math.random() * availableColors.length);
+      return availableColors[colorIndex];
+    }
+  };
 
-  // Extracted calculation function for reuse
+  // Helper to get text offset based on centering
+  const getTextOffset = (isCentered) => {
+    if (isCentered) {
+      return { x: 0, y: 0 };
+    } else {
+      return {
+        x: (Math.random() - 0.5) * 40,
+        y: (Math.random() - 0.5) * 20,
+      };
+    }
+  };
+
+  // Helper to get button text based on spelling probability
+  const getButtonText = (randomValue) => {
+    if (randomValue < spellingProb) {
+      return baseButtonText;
+    } else {
+      return generateMisspelling(baseButtonText);
+    }
+  };
+
+  // Improved click probability calculation
   const calculateClickProbability = (
     currentButtonClass,
     isCurrentTextCentered,
@@ -223,16 +265,19 @@ function ButtonForm({
     let baseClickRate = params.baseClickRate;
     let multiplier = 1.0;
 
-    // Color impact
+    // Color impact - specific preference for red
     const hasPreferredColor = currentButtonClass === 'red';
-    if (Math.random() < params.colorPreference) {
+    const userCaresAboutColor = Math.random() < params.colorPreference;
+
+    if (userCaresAboutColor) {
       if (hasPreferredColor) {
         multiplier *= 1 + params.colorImpact;
       }
     }
 
     // Text centering impact
-    if (Math.random() < params.centerPreference) {
+    const userCaresAboutCentering = Math.random() < params.centerPreference;
+    if (userCaresAboutCentering) {
       if (isCurrentTextCentered) {
         multiplier *= 1 + params.centerImpact;
       }
@@ -240,16 +285,15 @@ function ButtonForm({
 
     // Spelling impact
     const hasCorrectSpelling = currentButtonText === baseButtonText;
-    if (Math.random() < params.spellingPreference) {
+    const userCaresAboutSpelling = Math.random() < params.spellingPreference;
+    if (userCaresAboutSpelling) {
       if (hasCorrectSpelling) {
         multiplier *= 1 + params.spellingImpact;
       }
     }
 
-    // Apply multiplier
+    // Apply multiplier and ensure valid range
     let clickProbability = baseClickRate * multiplier;
-
-    // Ensure valid range
     return Math.max(0, Math.min(1, clickProbability));
   };
 

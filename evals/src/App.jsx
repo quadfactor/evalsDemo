@@ -44,6 +44,15 @@ function AppContent() {
     setProbabilityB(0);
   };
 
+  // Handle multiple clicks for batch processing
+  const handleClicks = (variation, count = 1) => {
+    if (variation === 'A') {
+      setClicksA((prev) => prev + count);
+    } else {
+      setClicksB((prev) => prev + count);
+    }
+  };
+
   // Population distribution logic with batch processing and auto-stop
   useEffect(() => {
     if (!isRunning) return;
@@ -118,7 +127,7 @@ function AppContent() {
             name="(Variation A)"
             primaryColor="blue"
             impressions={impressionsA}
-            onClick={() => setClicksA((prev) => prev + 1)}
+            onClick={(count = 1) => setClicksA((prev) => prev + count)}
             onProbabilityChange={setProbabilityA}
           />
         </div>
@@ -135,7 +144,7 @@ function AppContent() {
             name="(Variation B)"
             primaryColor="red"
             impressions={impressionsB}
-            onClick={() => setClicksB((prev) => prev + 1)}
+            onClick={(count = 1) => setClicksB((prev) => prev + count)}
             onProbabilityChange={setProbabilityB}
           />
         </div>

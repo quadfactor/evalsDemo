@@ -1,13 +1,14 @@
 import { useContext } from 'react';
 import { PopulationContext } from '../contexts/PopulationContext';
 
+// Fix statistical confidence calculation
 function Results({
   name,
   impressions,
   clicks,
   currentClickProbability,
   totalPopulation,
-  otherVariationData = null, // Add this parameter to receive other variation data
+  otherVariationData = null,
 }) {
   const { params, isRunning } = useContext(PopulationContext);
 
@@ -35,25 +36,46 @@ function Results({
   // Is this variation's sample fully collected?
   const isComplete = impressions >= expectedImpressions;
 
-  // Calculate lift compared to other variation
+  // Calculate lift compared to other variation with statistical significance
   let lift = null;
   let hasEnoughData = false;
+  let isStatisticallySignificant = false;
+
   if (
     otherVariationData &&
     otherVariationData.impressions > 0 &&
     impressions > 0
   ) {
-    const thisCTR = clicks / impressions;
-    const otherCTR = otherVariationData.clicks / otherVariationData.impressions;
+    // Calculate conversion rates
+    const thisCR = clicks / impressions;
+    const otherCR = otherVariationData.clicks / otherVariationData.impressions;
 
-    // Only show lift when we have a reasonable sample size (at least 5% of expected)
-    const minSampleSize = expectedImpressions * 0.05;
+    // Calculate minimum sample size needed (5% of expected)
+    const minSampleSize = Math.max(30, expectedImpressions * 0.05);
     hasEnoughData =
       impressions > minSampleSize &&
       otherVariationData.impressions > minSampleSize;
 
-    if (otherCTR > 0) {
-      lift = ((thisCTR - otherCTR) / otherCTR) * 100;
+    if (otherCR > 0) {
+      // Calculate relative lift
+      lift = ((thisCR - otherCR) / otherCR) * 100;
+
+      // Calculate statistical significance (z-test for proportions)
+      // For 95% confidence, we need z-score > 1.96
+      if (hasEnoughData) {
+        const pooledProportion =
+          (clicks + otherVariationData.clicks) /
+          (impressions + otherVariationData.impressions);
+
+        const standardError = Math.sqrt(
+          pooledProportion *
+            (1 - pooledProportion) *
+            (1 / impressions + 1 / otherVariationData.impressions)
+        );
+
+        const zScore = Math.abs((thisCR - otherCR) / standardError);
+        isStatisticallySignificant = zScore > 1.96; // 95% confidence level
+      }
     }
   }
 
@@ -86,7 +108,7 @@ function Results({
         <span>{ctr.toFixed(2)}%</span>
       </div>
 
-      {/* Lift compared to other variation */}
+      {/* Lift compared to other variation with statistical significance */}
       {hasEnoughData && lift !== null && (
         <div
           className={`stats-row lift-row ${
@@ -97,6 +119,14 @@ function Results({
           <span className="lift-value">
             {lift > 0 ? '+' : ''}
             {lift.toFixed(2)}%
+            {isStatisticallySignificant && (
+              <span
+                className="significance-marker"
+                title="Statistically significant (95% confidence)"
+              >
+                *
+              </span>
+            )}
           </span>
         </div>
       )}

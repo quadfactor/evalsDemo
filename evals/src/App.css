@@ -554,3 +554,14 @@ input[type='range'] {
 .lift-row.negative .lift-value {
   color: #c62828;
 }
+
+/* Add statistical significance marker style */
+.significance-marker {
+  display: inline-block;
+  color: #ff9800;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-left: 2px;
+  vertical-align: super;
+  font-size: 0.8em;
+}
