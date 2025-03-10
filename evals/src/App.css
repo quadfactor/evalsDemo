@@ -371,6 +371,8 @@ input[type='range'] {
   margin-bottom: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .control-button {
@@ -397,6 +399,14 @@ input[type='range'] {
 
 .control-button.stop:hover {
   background-color: #d32f2f;
+}
+
+.control-button.reset {
+  background-color: #ff9800;
+}
+
+.control-button.reset:hover {
+  background-color: #f57c00;
 }
 
 .population-size {

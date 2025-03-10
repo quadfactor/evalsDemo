@@ -16,14 +16,14 @@ function App() {
   const [clicksB, setClicksB] = useState(0);
   const [probabilityB, setProbabilityB] = useState(0);
 
-  const resetStatsA = () => {
+  // Reset all simulation stats
+  const resetAllStats = () => {
     setImpressionsA(0);
     setClicksA(0);
-  };
-
-  const resetStatsB = () => {
+    setProbabilityA(0);
     setImpressionsB(0);
     setClicksB(0);
+    setProbabilityB(0);
   };
 
   return (
@@ -35,7 +35,7 @@ function App() {
           population parameters and observe how users interact with different
           variations.
         </p>
-        <PopulationSettings />
+        <PopulationSettings onResetSimulation={resetAllStats} />
 
         <div className="forms-container">
           <div className="variation-container">
@@ -44,7 +44,6 @@ function App() {
               impressions={impressionsA}
               clicks={clicksA}
               currentClickProbability={probabilityA}
-              onReset={resetStatsA}
             />
             <ButtonForm
               name="(Variation A)"
@@ -60,7 +59,6 @@ function App() {
               impressions={impressionsB}
               clicks={clicksB}
               currentClickProbability={probabilityB}
-              onReset={resetStatsB}
             />
             <ButtonForm
               name="(Variation B)"

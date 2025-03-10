@@ -12,6 +12,7 @@ export function PopulationProvider({ children }) {
     spellingPreference: 0.6,
     spellingImpact: 0, // Can be negative or positive
     populationSize: 10000, // Default population size
+    fps: 3, // Global FPS setting
   });
 
   const [isRunning, setIsRunning] = useState(true);

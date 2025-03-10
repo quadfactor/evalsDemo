@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { PopulationContext } from '../contexts/PopulationContext';
 
-function PopulationSettings() {
+function PopulationSettings({ onResetSimulation }) {
   const { params, setParams, isRunning, setIsRunning } =
     useContext(PopulationContext);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
@@ -16,6 +16,21 @@ function PopulationSettings() {
     const percentChange = value * 100;
     const sign = percentChange >= 0 ? '+' : '';
     return `${sign}${percentChange.toFixed(0)}%`;
+  };
+
+  // Handle reset simulation
+  const handleReset = () => {
+    // Stop the simulation first
+    setIsRunning(false);
+
+    // Reset stats
+    onResetSimulation();
+
+    // Add a small delay before allowing to restart
+    setTimeout(() => {
+      // Can optionally restart simulation automatically
+      // setIsRunning(true);
+    }, 100);
   };
 
   return (
@@ -38,8 +53,12 @@ function PopulationSettings() {
             {isRunning ? 'Stop Simulation' : 'Start Simulation'}
           </button>
 
+          <button className="control-button reset" onClick={handleReset}>
+            Reset Simulation
+          </button>
+
           <div className="population-size">
-            <label htmlFor="population-size">Population Size:</label>
+            <label htmlFor="population-size">Population:</label>
             <input
               id="population-size"
               type="number"
@@ -56,6 +75,19 @@ function PopulationSettings() {
               className="population-input"
             />
           </div>
+        </div>
+
+        <div className="slider-group">
+          <span>Simulation speed:</span>
+          <input
+            type="range"
+            min="1"
+            max="30"
+            step="1"
+            value={params.fps}
+            onChange={(e) => handleParamChange('fps', e.target.value)}
+          />
+          <span>{params.fps} FPS</span>
         </div>
 
         <div className="slider-group">

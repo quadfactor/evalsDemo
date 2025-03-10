@@ -18,7 +18,6 @@ function ButtonForm({
 
   // Settings states
   const [probability, setProbability] = useState(0.5);
-  const [fps, setFps] = useState(3);
   const [centerProb, setCenterProb] = useState(1);
   const [spellingProb, setSpellingProb] = useState(1);
 
@@ -174,7 +173,7 @@ function ButtonForm({
             newButtonText
           );
         }, 50);
-      }, 1000 / fps);
+      }, 1000 / params.fps); // Use FPS from global context
     }
 
     return () => {
@@ -183,7 +182,6 @@ function ButtonForm({
     };
   }, [
     probability,
-    fps,
     centerProb,
     spellingProb,
     selectedColor,
@@ -195,6 +193,7 @@ function ButtonForm({
     params.centerImpact,
     params.spellingPreference,
     params.spellingImpact,
+    params.fps, // Add global FPS to dependencies
     onImpression,
     onClick,
     onProbabilityChange,
@@ -239,18 +238,6 @@ function ButtonForm({
                 </option>
               ))}
             </select>
-          </div>
-          <div className="slider-group">
-            <span>Update rate:</span>
-            <input
-              type="range"
-              min="1"
-              max="30"
-              step="1"
-              value={fps}
-              onChange={(e) => setFps(Number(e.target.value))}
-            />
-            <span>{fps} FPS</span>
           </div>
           <div className="slider-group">
             <span>{selectedColor} probability:</span>

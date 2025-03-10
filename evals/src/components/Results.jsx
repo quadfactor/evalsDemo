@@ -1,13 +1,7 @@
 import { useContext } from 'react';
 import { PopulationContext } from '../contexts/PopulationContext';
 
-function Results({
-  name,
-  impressions,
-  clicks,
-  currentClickProbability,
-  onReset,
-}) {
+function Results({ name, impressions, clicks, currentClickProbability }) {
   const { params } = useContext(PopulationContext);
 
   // Calculate the effective multiplier from base rate
@@ -48,9 +42,6 @@ function Results({
         <span>Effect multiplier:</span>
         <span>{effectiveMultiplier.toFixed(2)}x</span>
       </div>
-      <button type="button" className="reset-button" onClick={onReset}>
-        Reset Stats
-      </button>
     </div>
   );
 }
