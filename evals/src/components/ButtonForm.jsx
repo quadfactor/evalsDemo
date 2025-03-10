@@ -4,7 +4,7 @@ import { PopulationContext } from '../contexts/PopulationContext';
 function ButtonForm({
   name = 'Default',
   primaryColor = 'red',
-  onImpression,
+  impressions, // Now receiving impressions from parent
   onClick,
   onProbabilityChange,
 }) {
@@ -101,13 +101,10 @@ function ButtonForm({
     // Ensure probability is within valid range
     clickProbability = Math.max(0, Math.min(1, clickProbability));
 
-    // Pass the current probability to parent
+    // Pass the current probability to parent (but don't increment impressions here)
     onProbabilityChange(clickProbability);
 
-    // Increment impressions
-    onImpression();
-
-    // Determine if click happens
+    // Determine if click happens (simulating actual user clicking)
     if (Math.random() < clickProbability) {
       onClick();
       return true;
@@ -116,68 +113,61 @@ function ButtonForm({
   };
 
   useEffect(() => {
+    // No need to run the simulation if there are no impressions to process
+    if (!isRunning || impressions === 0) return;
+
     let timeoutId;
-    let interval;
 
-    if (isRunning) {
-      interval = setInterval(() => {
-        // Generate all random values at once to ensure consistency
-        const randomValue = Math.random();
-        const centerValue = Math.random();
-        const spellingValue = Math.random();
+    // Generate all random values at once to ensure consistency
+    const randomValue = Math.random();
+    const centerValue = Math.random();
+    const spellingValue = Math.random();
 
-        // Color logic - capture the new value before state update
-        let newButtonClass;
-        if (randomValue < probability) {
-          newButtonClass = selectedColor;
-        } else {
-          const availableColors = colorClasses.filter(
-            (color) => color !== selectedColor
-          );
-          const colorIndex = Math.floor(Math.random() * availableColors.length);
-          newButtonClass = availableColors[colorIndex];
-        }
-        setButtonClass(newButtonClass);
-
-        // Text alignment logic - capture new values before state update
-        let newTextCentered;
-        let newOffset;
-        if (centerValue < centerProb) {
-          newOffset = { x: 0, y: 0 };
-          newTextCentered = true;
-        } else {
-          newOffset = {
-            x: (Math.random() - 0.5) * 40,
-            y: (Math.random() - 0.5) * 20,
-          };
-          newTextCentered = false;
-        }
-        setTextOffset(newOffset);
-        setIsTextCentered(newTextCentered);
-
-        // Updated spelling logic - capture new value before state update
-        let newButtonText;
-        if (spellingValue < spellingProb) {
-          newButtonText = baseButtonText;
-        } else {
-          newButtonText = generateMisspelling(baseButtonText);
-        }
-        setButtonText(newButtonText);
-
-        // Simulate user interaction with the new values we just calculated
-        // This ensures we're using the values that will be displayed to the user
-        timeoutId = setTimeout(() => {
-          simulateUserInteraction(
-            newButtonClass,
-            newTextCentered,
-            newButtonText
-          );
-        }, 50);
-      }, 1000 / params.fps); // Use FPS from global context
+    // Color logic - capture the new value before state update
+    let newButtonClass;
+    if (randomValue < probability) {
+      newButtonClass = selectedColor;
+    } else {
+      const availableColors = colorClasses.filter(
+        (color) => color !== selectedColor
+      );
+      const colorIndex = Math.floor(Math.random() * availableColors.length);
+      newButtonClass = availableColors[colorIndex];
     }
+    setButtonClass(newButtonClass);
+
+    // Text alignment logic - capture new values before state update
+    let newTextCentered;
+    let newOffset;
+    if (centerValue < centerProb) {
+      newOffset = { x: 0, y: 0 };
+      newTextCentered = true;
+    } else {
+      newOffset = {
+        x: (Math.random() - 0.5) * 40,
+        y: (Math.random() - 0.5) * 20,
+      };
+      newTextCentered = false;
+    }
+    setTextOffset(newOffset);
+    setIsTextCentered(newTextCentered);
+
+    // Updated spelling logic - capture new value before state update
+    let newButtonText;
+    if (spellingValue < spellingProb) {
+      newButtonText = baseButtonText;
+    } else {
+      newButtonText = generateMisspelling(baseButtonText);
+    }
+    setButtonText(newButtonText);
+
+    // Simulate user interaction with the new values we just calculated
+    // This ensures we're using the values that will be displayed to the user
+    timeoutId = setTimeout(() => {
+      simulateUserInteraction(newButtonClass, newTextCentered, newButtonText);
+    }, 50);
 
     return () => {
-      if (interval) clearInterval(interval);
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, [
@@ -193,11 +183,11 @@ function ButtonForm({
     params.centerImpact,
     params.spellingPreference,
     params.spellingImpact,
-    params.fps, // Add global FPS to dependencies
-    onImpression,
+    params.fps,
     onClick,
     onProbabilityChange,
     isRunning,
+    impressions, // Add impressions as a dependency
   ]);
 
   const handleSubmit = (e) => {

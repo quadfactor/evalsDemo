@@ -1,7 +1,13 @@
 import { useContext } from 'react';
 import { PopulationContext } from '../contexts/PopulationContext';
 
-function Results({ name, impressions, clicks, currentClickProbability }) {
+function Results({
+  name,
+  impressions,
+  clicks,
+  currentClickProbability,
+  totalPopulation,
+}) {
   const { params } = useContext(PopulationContext);
 
   // Calculate the effective multiplier from base rate
@@ -9,11 +15,18 @@ function Results({ name, impressions, clicks, currentClickProbability }) {
   const effectiveMultiplier =
     baseRate > 0 ? currentClickProbability / baseRate : 0;
 
-  // Calculate population reach percentage
+  // Calculate population reach percentage (against the total population)
   const populationReachPercent =
-    params.populationSize > 0
-      ? ((impressions / params.populationSize) * 100).toFixed(2)
+    totalPopulation > 0
+      ? ((impressions / totalPopulation) * 100).toFixed(2)
       : '0.00';
+
+  // Calculate expected total impressions for this variation (50% of population)
+  const expectedImpressions = totalPopulation / 2;
+  const completionPercent =
+    expectedImpressions > 0
+      ? Math.min(100, ((impressions / expectedImpressions) * 100).toFixed(1))
+      : '0.0';
 
   return (
     <div className="stats-container">
@@ -21,8 +34,15 @@ function Results({ name, impressions, clicks, currentClickProbability }) {
       <div className="stats-row">
         <span>Impressions:</span>
         <span>
-          {impressions} ({populationReachPercent}% of population)
+          {impressions} ({populationReachPercent}% of total population)
         </span>
+      </div>
+      <div className="progress-bar">
+        <div
+          className="progress-fill"
+          style={{ width: `${completionPercent}%` }}
+          title={`${completionPercent}% of expected sample size`}
+        ></div>
       </div>
       <div className="stats-row">
         <span>Clicks:</span>

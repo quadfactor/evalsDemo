@@ -82,8 +82,8 @@ function PopulationSettings({ onResetSimulation }) {
           <input
             type="range"
             min="1"
-            max="30"
-            step="1"
+            max="1000"
+            step={params.fps > 100 ? 100 : params.fps > 30 ? 10 : 1}
             value={params.fps}
             onChange={(e) => handleParamChange('fps', e.target.value)}
           />
