@@ -39,13 +39,6 @@ function App() {
 
         <div className="forms-container">
           <div className="variation-container">
-            <ButtonForm
-              name="(Variation A)"
-              primaryColor="blue"
-              onImpression={() => setImpressionsA((prev) => prev + 1)}
-              onClick={() => setClicksA((prev) => prev + 1)}
-              onProbabilityChange={setProbabilityA}
-            />
             <Results
               name="(Variation A)"
               impressions={impressionsA}
@@ -53,21 +46,28 @@ function App() {
               currentClickProbability={probabilityA}
               onReset={resetStatsA}
             />
+            <ButtonForm
+              name="(Variation A)"
+              primaryColor="blue"
+              onImpression={() => setImpressionsA((prev) => prev + 1)}
+              onClick={() => setClicksA((prev) => prev + 1)}
+              onProbabilityChange={setProbabilityA}
+            />
           </div>
           <div className="variation-container">
-            <ButtonForm
-              name="(Variation B)"
-              primaryColor="red"
-              onImpression={() => setImpressionsB((prev) => prev + 1)}
-              onClick={() => setClicksB((prev) => prev + 1)}
-              onProbabilityChange={setProbabilityB}
-            />
             <Results
               name="(Variation B)"
               impressions={impressionsB}
               clicks={clicksB}
               currentClickProbability={probabilityB}
               onReset={resetStatsB}
+            />
+            <ButtonForm
+              name="(Variation B)"
+              primaryColor="red"
+              onImpression={() => setImpressionsB((prev) => prev + 1)}
+              onClick={() => setClicksB((prev) => prev + 1)}
+              onProbabilityChange={setProbabilityB}
             />
           </div>
         </div>
