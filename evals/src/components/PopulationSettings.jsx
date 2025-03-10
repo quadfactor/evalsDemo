@@ -139,10 +139,10 @@ function PopulationSettings() {
           <strong>How effects work:</strong>
         </p>
         <p>
-          Positive values (+) increase clicks only when attribute is present.
+          Positive values (+) increase clicks when the attribute is present.
         </p>
         <p>
-          Negative values (-) decrease clicks only when attribute is absent.
+          Negative values (-) decrease clicks when the attribute is present.
         </p>
         <p>Multiple effects combine multiplicatively.</p>
       </div>

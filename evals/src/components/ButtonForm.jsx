@@ -71,41 +71,29 @@ function ButtonForm({
     const hasPreferredColor = currentButtonClass === 'red';
     if (Math.random() < params.colorPreference) {
       // This user cares about red color
-      if (hasPreferredColor && params.colorImpact > 0) {
-        // Apply positive multiplier only when red is shown
+      if (hasPreferredColor) {
+        // Apply the multiplier (positive or negative) only when red is shown
         multiplier *= 1 + params.colorImpact;
-      } else if (!hasPreferredColor && params.colorImpact < 0) {
-        // Apply negative multiplier only when non-red is shown
-        multiplier *= 1 + params.colorImpact; // params.colorImpact is already negative
       }
-      // No effect if red isn't shown with positive impact or non-red isn't shown with negative impact
     }
 
     // Text centering impact
     if (Math.random() < params.centerPreference) {
       // This user cares about alignment
-      if (isCurrentTextCentered && params.centerImpact > 0) {
-        // Apply positive multiplier only when text is centered
+      if (isCurrentTextCentered) {
+        // Apply the multiplier (positive or negative) only when text is centered
         multiplier *= 1 + params.centerImpact;
-      } else if (!isCurrentTextCentered && params.centerImpact < 0) {
-        // Apply negative multiplier only when text is not centered
-        multiplier *= 1 + params.centerImpact; // params.centerImpact is already negative
       }
-      // No effect if centered text isn't shown with positive impact or non-centered text isn't shown with negative impact
     }
 
     // Spelling impact
     const hasCorrectSpelling = currentButtonText === baseButtonText;
     if (Math.random() < params.spellingPreference) {
       // This user cares about spelling
-      if (hasCorrectSpelling && params.spellingImpact > 0) {
-        // Apply positive multiplier only when spelling is correct
+      if (hasCorrectSpelling) {
+        // Apply the multiplier (positive or negative) only when spelling is correct
         multiplier *= 1 + params.spellingImpact;
-      } else if (!hasCorrectSpelling && params.spellingImpact < 0) {
-        // Apply negative multiplier only when spelling is incorrect
-        multiplier *= 1 + params.spellingImpact; // params.spellingImpact is already negative
       }
-      // No effect if correct spelling isn't shown with positive impact or incorrect spelling isn't shown with negative impact
     }
 
     // Apply the multiplier to the base rate
