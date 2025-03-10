@@ -8,7 +8,7 @@ function ButtonForm({
   onClick,
   onProbabilityChange,
 }) {
-  const { params } = useContext(PopulationContext);
+  const { params, isRunning } = useContext(PopulationContext);
   const colorClasses = ['red', 'green', 'blue', 'yellow', 'purple'];
   // Button states
   const [buttonClass, setButtonClass] = useState(colorClasses[0]);
@@ -118,60 +118,67 @@ function ButtonForm({
 
   useEffect(() => {
     let timeoutId;
+    let interval;
 
-    const interval = setInterval(() => {
-      // Generate all random values at once to ensure consistency
-      const randomValue = Math.random();
-      const centerValue = Math.random();
-      const spellingValue = Math.random();
+    if (isRunning) {
+      interval = setInterval(() => {
+        // Generate all random values at once to ensure consistency
+        const randomValue = Math.random();
+        const centerValue = Math.random();
+        const spellingValue = Math.random();
 
-      // Color logic - capture the new value before state update
-      let newButtonClass;
-      if (randomValue < probability) {
-        newButtonClass = selectedColor;
-      } else {
-        const availableColors = colorClasses.filter(
-          (color) => color !== selectedColor
-        );
-        const colorIndex = Math.floor(Math.random() * availableColors.length);
-        newButtonClass = availableColors[colorIndex];
-      }
-      setButtonClass(newButtonClass);
+        // Color logic - capture the new value before state update
+        let newButtonClass;
+        if (randomValue < probability) {
+          newButtonClass = selectedColor;
+        } else {
+          const availableColors = colorClasses.filter(
+            (color) => color !== selectedColor
+          );
+          const colorIndex = Math.floor(Math.random() * availableColors.length);
+          newButtonClass = availableColors[colorIndex];
+        }
+        setButtonClass(newButtonClass);
 
-      // Text alignment logic - capture new values before state update
-      let newTextCentered;
-      let newOffset;
-      if (centerValue < centerProb) {
-        newOffset = { x: 0, y: 0 };
-        newTextCentered = true;
-      } else {
-        newOffset = {
-          x: (Math.random() - 0.5) * 40,
-          y: (Math.random() - 0.5) * 20,
-        };
-        newTextCentered = false;
-      }
-      setTextOffset(newOffset);
-      setIsTextCentered(newTextCentered);
+        // Text alignment logic - capture new values before state update
+        let newTextCentered;
+        let newOffset;
+        if (centerValue < centerProb) {
+          newOffset = { x: 0, y: 0 };
+          newTextCentered = true;
+        } else {
+          newOffset = {
+            x: (Math.random() - 0.5) * 40,
+            y: (Math.random() - 0.5) * 20,
+          };
+          newTextCentered = false;
+        }
+        setTextOffset(newOffset);
+        setIsTextCentered(newTextCentered);
 
-      // Updated spelling logic - capture new value before state update
-      let newButtonText;
-      if (spellingValue < spellingProb) {
-        newButtonText = baseButtonText;
-      } else {
-        newButtonText = generateMisspelling(baseButtonText);
-      }
-      setButtonText(newButtonText);
+        // Updated spelling logic - capture new value before state update
+        let newButtonText;
+        if (spellingValue < spellingProb) {
+          newButtonText = baseButtonText;
+        } else {
+          newButtonText = generateMisspelling(baseButtonText);
+        }
+        setButtonText(newButtonText);
 
-      // Simulate user interaction with the new values we just calculated
-      // This ensures we're using the values that will be displayed to the user
-      timeoutId = setTimeout(() => {
-        simulateUserInteraction(newButtonClass, newTextCentered, newButtonText);
-      }, 50);
-    }, 1000 / fps);
+        // Simulate user interaction with the new values we just calculated
+        // This ensures we're using the values that will be displayed to the user
+        timeoutId = setTimeout(() => {
+          simulateUserInteraction(
+            newButtonClass,
+            newTextCentered,
+            newButtonText
+          );
+        }, 50);
+      }, 1000 / fps);
+    }
 
     return () => {
-      clearInterval(interval);
+      if (interval) clearInterval(interval);
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, [
@@ -191,6 +198,7 @@ function ButtonForm({
     onImpression,
     onClick,
     onProbabilityChange,
+    isRunning,
   ]);
 
   const handleSubmit = (e) => {

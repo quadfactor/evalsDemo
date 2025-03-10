@@ -2,7 +2,8 @@ import { useContext, useState } from 'react';
 import { PopulationContext } from '../contexts/PopulationContext';
 
 function PopulationSettings() {
-  const { params, setParams } = useContext(PopulationContext);
+  const { params, setParams, isRunning, setIsRunning } =
+    useContext(PopulationContext);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
 
   const handleParamChange = (key, value) => {
@@ -29,6 +30,34 @@ function PopulationSettings() {
         </button>
       </div>
       <div className="slider-controls">
+        <div className="simulation-controls">
+          <button
+            className={`control-button ${isRunning ? 'stop' : 'start'}`}
+            onClick={() => setIsRunning(!isRunning)}
+          >
+            {isRunning ? 'Stop Simulation' : 'Start Simulation'}
+          </button>
+
+          <div className="population-size">
+            <label htmlFor="population-size">Population Size:</label>
+            <input
+              id="population-size"
+              type="number"
+              min="1000"
+              max="1000000"
+              step="1000"
+              value={params.populationSize}
+              onChange={(e) =>
+                handleParamChange(
+                  'populationSize',
+                  Math.max(1000, e.target.value)
+                )
+              }
+              className="population-input"
+            />
+          </div>
+        </div>
+
         <div className="slider-group">
           <span>Base click rate:</span>
           <input

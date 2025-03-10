@@ -11,10 +11,15 @@ export function PopulationProvider({ children }) {
     centerImpact: 0, // Can be negative or positive
     spellingPreference: 0.6,
     spellingImpact: 0, // Can be negative or positive
+    populationSize: 10000, // Default population size
   });
 
+  const [isRunning, setIsRunning] = useState(true);
+
   return (
-    <PopulationContext.Provider value={{ params, setParams }}>
+    <PopulationContext.Provider
+      value={{ params, setParams, isRunning, setIsRunning }}
+    >
       {children}
     </PopulationContext.Provider>
   );

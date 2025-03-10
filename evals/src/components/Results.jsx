@@ -15,12 +15,20 @@ function Results({
   const effectiveMultiplier =
     baseRate > 0 ? currentClickProbability / baseRate : 0;
 
+  // Calculate population reach percentage
+  const populationReachPercent =
+    params.populationSize > 0
+      ? ((impressions / params.populationSize) * 100).toFixed(2)
+      : '0.00';
+
   return (
     <div className="stats-container">
       <h3>Results {name}</h3>
       <div className="stats-row">
         <span>Impressions:</span>
-        <span>{impressions}</span>
+        <span>
+          {impressions} ({populationReachPercent}% of population)
+        </span>
       </div>
       <div className="stats-row">
         <span>Clicks:</span>
