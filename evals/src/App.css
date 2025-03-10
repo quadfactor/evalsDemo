@@ -631,4 +631,93 @@ input[type='range'] {
   font-weight: 500;
 }
 
-/* ...existing styles... */
+/* Turbo mode styling */
+.turbo-mode-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: rgba(255, 193, 7, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  margin: 10px 0;
+  border: 1px dashed rgba(255, 193, 7, 0.5);
+}
+
+.turbo-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.turbo-toggle input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+}
+
+.turbo-toggle label {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.turbo-toggle label::after {
+  content: '⚡';
+  margin-left: 5px;
+  font-size: 1.2em;
+}
+
+.turbo-info {
+  display: grid;
+  grid-template-columns: 150px 200px 60px;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.turbo-info-box {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 193, 7, 0.15);
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.turbo-icon {
+  font-size: 1.5em;
+  margin-right: 10px;
+}
+
+.turbo-description {
+  font-size: 0.9em;
+  line-height: 1.3;
+  opacity: 0.8;
+}
+
+.control-button.turbo-running {
+  background-color: #ff9800;
+  position: relative;
+  overflow: hidden;
+}
+
+.control-button.turbo-running::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 30%;
+  background-color: rgba(255, 255, 255, 0.3);
+  animation: turbo-pulse 1s infinite linear;
+}
+
+@keyframes turbo-pulse {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}

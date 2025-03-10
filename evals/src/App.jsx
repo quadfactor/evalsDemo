@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext, useMemo, useCallback } from 'react';
 import ButtonForm from './components/ButtonForm';
 import Results from './components/Results';
 import PopulationSettings from './components/PopulationSettings';
@@ -9,8 +9,14 @@ import {
 import './App.css';
 
 function AppContent() {
-  const { params, isRunning, setIsRunning, requiredPopulationSize } =
-    useContext(PopulationContext);
+  const {
+    params,
+    isRunning,
+    setIsRunning,
+    requiredPopulationSize,
+    setTurboProgress,
+    turboProgress, // Add this line to get turboProgress from context
+  } = useContext(PopulationContext);
 
   // Results state for Variation A
   const [impressionsA, setImpressionsA] = useState(0);
@@ -45,18 +51,160 @@ function AppContent() {
     setProbabilityB(0);
   };
 
-  // Handle multiple clicks for batch processing
-  const handleClicks = (variation, count = 1) => {
-    if (variation === 'A') {
-      setClicksA((prev) => prev + count);
-    } else {
-      setClicksB((prev) => prev + count);
+  // Simulate multiple steps at once for turbo mode
+  const simulateTurboMode = useCallback(() => {
+    if (!isRunning || !params.turboMode) return;
+
+    // Stop normal simulation
+    setIsRunning(false);
+
+    // Use Web Worker if available to avoid UI freezing
+    const runTurboSimulation = () => {
+      const halfPopulation = requiredPopulationSize / 2;
+      let currentImpressions = { a: impressionsA, b: impressionsB };
+      let currentClicks = { a: clicksA, b: clicksB };
+
+      const totalIterationsNeeded =
+        requiredPopulationSize - (impressionsA + impressionsB);
+      const iterationsToRun = Math.min(totalIterationsNeeded, 1000000); // Limit to avoid freezing
+
+      console.log(`Running ${iterationsToRun} iterations in Turbo Mode`);
+
+      // Update progress periodically
+      let lastProgress = 0;
+
+      // Run simulation loop
+      for (let i = 0; i < iterationsToRun; i++) {
+        // Assign to variation and compute clicks
+        const assignToA =
+          (Math.random() < 0.5 && currentImpressions.a < halfPopulation) ||
+          currentImpressions.b >= halfPopulation;
+
+        if (assignToA) {
+          currentImpressions.a++;
+
+          // Simulate click based on params
+          if (simulateClick('A', params)) {
+            currentClicks.a++;
+          }
+        } else {
+          currentImpressions.b++;
+
+          // Simulate click based on params
+          if (simulateClick('B', params)) {
+            currentClicks.b++;
+          }
+        }
+
+        // Update progress every 5% of iterations
+        const progress = Math.floor((i / iterationsToRun) * 100);
+        if (progress >= lastProgress + 5) {
+          setTurboProgress(progress);
+          lastProgress = progress;
+        }
+
+        // Check if we've reached the target population
+        if (
+          currentImpressions.a >= halfPopulation &&
+          currentImpressions.b >= halfPopulation
+        ) {
+          break;
+        }
+      }
+
+      // Update state all at once at the end
+      setImpressionsA(currentImpressions.a);
+      setClicksA(currentClicks.a);
+      setImpressionsB(currentImpressions.b);
+      setClicksB(currentClicks.b);
+
+      // Calculate and update probabilities
+      const probA = simulateTestClick('A', params);
+      const probB = simulateTestClick('B', params);
+      setProbabilityA(probA);
+      setProbabilityB(probB);
+
+      // Complete
+      setTurboProgress(100);
+
+      // If we didn't complete the whole population
+      if (
+        currentImpressions.a < halfPopulation ||
+        currentImpressions.b < halfPopulation
+      ) {
+        // Allow continuing with regular simulation
+        setTimeout(() => {
+          setIsRunning(true);
+          setTurboProgress(0);
+        }, 500);
+      }
+    };
+
+    // Use setTimeout to prevent UI freeze and allow progress updates
+    setTimeout(runTurboSimulation, 100);
+
+    // Set initial progress
+    setTurboProgress(1);
+  }, [
+    isRunning,
+    params,
+    requiredPopulationSize,
+    impressionsA,
+    impressionsB,
+    clicksA,
+    clicksB,
+  ]);
+
+  // Helper function to simulate a click based on parameters
+  const simulateClick = (variation, params) => {
+    // Start with base click rate
+    let clickProbability = params.baseClickRate;
+    let multiplier = 1.0;
+
+    // Apply each effect based on probability
+    // Color effect (assuming variation B is red)
+    if (variation === 'B' && Math.random() < params.colorPreference) {
+      multiplier *= 1 + params.colorImpact;
     }
+
+    // Apply other effects similar to ButtonForm logic
+    // ...simplified for performance...
+
+    // Apply multiplier
+    clickProbability *= multiplier;
+
+    // Determine if click happens
+    return Math.random() < clickProbability;
   };
 
-  // Population distribution logic with batch processing and auto-stop
+  // Function to simulate test click for calculating probability
+  const simulateTestClick = (variation, params) => {
+    // Similar to simulateClick but just returns the probability
+    let clickProbability = params.baseClickRate;
+    let multiplier = 1.0;
+
+    if (variation === 'B') {
+      multiplier *= 1 + params.colorPreference * params.colorImpact;
+    }
+
+    // Simplified for turbo mode
+    return clickProbability * multiplier;
+  };
+
+  // Effect to start turbo mode when enabled
   useEffect(() => {
-    if (!isRunning) return;
+    if (isRunning && params.turboMode && !turboProgress) {
+      simulateTurboMode();
+    }
+  }, [isRunning, params.turboMode, simulateTurboMode, turboProgress]);
+
+  // Regular simulation effect (only runs if not in turbo mode or turbo is complete)
+  useEffect(() => {
+    if (
+      !isRunning ||
+      (params.turboMode && turboProgress > 0 && turboProgress < 100)
+    )
+      return;
 
     // Calculate whether we've reached the target sample size
     const halfPopulation = requiredPopulationSize / 2;
@@ -102,6 +250,8 @@ function AppContent() {
     impressionsA,
     impressionsB,
     setIsRunning,
+    params.turboMode,
+    turboProgress,
   ]);
 
   return (

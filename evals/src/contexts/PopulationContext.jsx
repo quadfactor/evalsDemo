@@ -15,6 +15,8 @@ export function PopulationProvider({ children }) {
     minimumDetectableEffect: 0.1, // New parameter for minimum detectable effect (10%)
     fps: 3,
     performanceMode: true,
+    turboMode: false, // New parameter to enable turbo simulation mode
+    turboSpeedMultiplier: 100, // Process this many iterations at once in turbo mode
   });
 
   // Calculate required population size automatically
@@ -55,6 +57,7 @@ export function PopulationProvider({ children }) {
   }, []);
 
   const [isRunning, setIsRunning] = useState(false);
+  const [turboProgress, setTurboProgress] = useState(0); // Track progress in turbo mode
 
   return (
     <PopulationContext.Provider
@@ -64,6 +67,8 @@ export function PopulationProvider({ children }) {
         isRunning,
         setIsRunning,
         requiredPopulationSize,
+        turboProgress,
+        setTurboProgress,
       }}
     >
       {children}

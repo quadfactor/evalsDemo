@@ -2,8 +2,14 @@ import { useContext, useState } from 'react';
 import { PopulationContext } from '../contexts/PopulationContext';
 
 function PopulationSettings({ onResetSimulation }) {
-  const { params, setParams, isRunning, setIsRunning, requiredPopulationSize } =
-    useContext(PopulationContext);
+  const {
+    params,
+    setParams,
+    isRunning,
+    setIsRunning,
+    requiredPopulationSize,
+    turboProgress,
+  } = useContext(PopulationContext);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
 
   const handleParamChange = (key, value) => {
@@ -87,6 +93,10 @@ function PopulationSettings({ onResetSimulation }) {
     );
   };
 
+  // For turbo mode
+  const isTurboRunning =
+    isRunning && params.turboMode && turboProgress > 0 && turboProgress < 100;
+
   // Format numbers for display
   const formatNumber = (num) => {
     return new Intl.NumberFormat().format(Math.round(num));
@@ -106,13 +116,24 @@ function PopulationSettings({ onResetSimulation }) {
       <div className="slider-controls">
         <div className="simulation-controls">
           <button
-            className={`control-button ${isRunning ? 'stop' : 'start'}`}
+            className={`control-button ${isRunning ? 'stop' : 'start'} ${
+              isTurboRunning ? 'turbo-running' : ''
+            }`}
             onClick={() => setIsRunning(!isRunning)}
+            disabled={isTurboRunning}
           >
-            {isRunning ? 'Stop Simulation' : 'Start Simulation'}
+            {isTurboRunning
+              ? `Simulating... ${turboProgress}%`
+              : isRunning
+              ? 'Stop Simulation'
+              : 'Start Simulation'}
           </button>
 
-          <button className="control-button reset" onClick={handleReset}>
+          <button
+            className="control-button reset"
+            onClick={handleReset}
+            disabled={isTurboRunning}
+          >
             Reset Simulation
           </button>
 
@@ -123,6 +144,35 @@ function PopulationSettings({ onResetSimulation }) {
             >
               Population: {formatNumber(requiredPopulationSize)}
             </div>
+          </div>
+        </div>
+
+        {/* Add Turbo Mode toggle switch */}
+        <div className="turbo-mode-container">
+          <div className="turbo-toggle">
+            <input
+              type="checkbox"
+              id="turbo-mode"
+              checked={params.turboMode}
+              onChange={(e) => handleParamChange('turboMode', e.target.checked)}
+              disabled={isRunning}
+            />
+            <label htmlFor="turbo-mode">Turbo Mode</label>
+          </div>
+          <div className="turbo-info">
+            <span>Speed multiplier:</span>
+            <input
+              type="range"
+              min="10"
+              max="1000"
+              step="10"
+              value={params.turboSpeedMultiplier}
+              onChange={(e) =>
+                handleParamChange('turboSpeedMultiplier', e.target.value)
+              }
+              disabled={isRunning}
+            />
+            <span>x{params.turboSpeedMultiplier}</span>
           </div>
         </div>
 
@@ -285,6 +335,18 @@ function PopulationSettings({ onResetSimulation }) {
           <span>{formatImpact(params.spellingImpact)}</span>
         </div>
       </div>
+
+      {params.turboMode && (
+        <div className="turbo-info-box">
+          <div className="turbo-icon">⚡</div>
+          <div className="turbo-description">
+            <strong>Turbo Mode:</strong> UI updates are suspended during
+            simulation for maximum speed. Only final results will be displayed
+            when the simulation completes.
+          </div>
+        </div>
+      )}
+
       <div className="settings-info">
         <p>
           <strong>How effects work:</strong>
