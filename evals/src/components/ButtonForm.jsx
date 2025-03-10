@@ -1,7 +1,13 @@
 import { useState, useEffect, useContext } from 'react';
 import { PopulationContext } from '../contexts/PopulationContext';
 
-function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
+function ButtonForm({
+  name = 'Default',
+  primaryColor = 'red',
+  onImpression,
+  onClick,
+  onProbabilityChange,
+}) {
   const { params } = useContext(PopulationContext);
   const colorClasses = ['red', 'green', 'blue', 'yellow', 'purple'];
   // Button states
@@ -26,11 +32,6 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
 
   const [baseButtonText, setBaseButtonText] = useState('Click Me!');
   const [buttonText, setButtonText] = useState(baseButtonText);
-
-  // Stats
-  const [impressions, setImpressions] = useState(0);
-  const [clicks, setClicks] = useState(0);
-  const [currentClickProbability, setCurrentClickProbability] = useState(0);
 
   const generateMisspelling = (text) => {
     const modifications = [
@@ -88,15 +89,15 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
     // Ensure probability is within valid range
     clickProbability = Math.max(0, Math.min(1, clickProbability));
 
-    // Save current probability for display
-    setCurrentClickProbability(clickProbability);
+    // Pass the current probability to parent
+    onProbabilityChange(clickProbability);
 
     // Increment impressions
-    setImpressions((prev) => prev + 1);
+    onImpression();
 
     // Determine if click happens
     if (Math.random() < clickProbability) {
-      setClicks((prev) => prev + 1);
+      onClick();
       return true;
     }
     return false;
@@ -171,11 +172,6 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
       ...formData,
       [e.target.name]: e.target.value,
     });
-  };
-
-  const resetStats = () => {
-    setImpressions(0);
-    setClicks(0);
   };
 
   return (
@@ -287,30 +283,6 @@ function ButtonForm({ name = 'Default', primaryColor = 'red' }) {
             className="form-input"
             required
           />
-        </div>
-        <div className="stats-container">
-          <h3>Results</h3>
-          <div className="stats-row">
-            <span>Impressions:</span>
-            <span>{impressions}</span>
-          </div>
-          <div className="stats-row">
-            <span>Clicks:</span>
-            <span>{clicks}</span>
-          </div>
-          <div className="stats-row">
-            <span>CTR:</span>
-            <span>
-              {impressions > 0 ? ((clicks / impressions) * 100).toFixed(2) : 0}%
-            </span>
-          </div>
-          <div className="stats-row">
-            <span>Current probability:</span>
-            <span>{(currentClickProbability * 100).toFixed(2)}%</span>
-          </div>
-          <button type="button" className="reset-button" onClick={resetStats}>
-            Reset Stats
-          </button>
         </div>
         <button
           type="submit"
