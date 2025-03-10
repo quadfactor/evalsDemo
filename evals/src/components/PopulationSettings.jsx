@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import { PopulationContext } from '../contexts/PopulationContext';
 
 function PopulationSettings({ onResetSimulation }) {
-  const { params, setParams, isRunning, setIsRunning } =
+  const { params, setParams, isRunning, setIsRunning, requiredPopulationSize } =
     useContext(PopulationContext);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
 
@@ -87,6 +87,11 @@ function PopulationSettings({ onResetSimulation }) {
     );
   };
 
+  // Format numbers for display
+  const formatNumber = (num) => {
+    return new Intl.NumberFormat().format(Math.round(num));
+  };
+
   return (
     <div className={`settings-panel ${!isPanelOpen ? 'collapsed' : ''}`}>
       <div className="settings-header">
@@ -111,19 +116,47 @@ function PopulationSettings({ onResetSimulation }) {
             Reset Simulation
           </button>
 
-          <div className="population-size">
-            <label htmlFor="population-size">Population:</label>
-            <input
-              id="population-size"
-              type="number"
-              min="1000"
-              max="1000000"
-              step="1000"
-              value={params.populationSize}
-              onChange={(e) => handlePopulationChange(e.target.value)}
-              className="population-input"
-            />
+          <div className="population-info">
+            <div
+              className="population-badge"
+              title="Required population size based on statistical significance"
+            >
+              Population: {formatNumber(requiredPopulationSize)}
+            </div>
           </div>
+        </div>
+
+        <div className="slider-group">
+          <span>Confidence Level:</span>
+          <select
+            className="confidence-select"
+            value={params.confidenceLevel}
+            onChange={(e) =>
+              handleParamChange('confidenceLevel', e.target.value)
+            }
+          >
+            <option value="0.80">80%</option>
+            <option value="0.85">85%</option>
+            <option value="0.90">90%</option>
+            <option value="0.95">95%</option>
+            <option value="0.99">99%</option>
+          </select>
+          <span>{Math.round(params.confidenceLevel * 100)}%</span>
+        </div>
+
+        <div className="slider-group">
+          <span>Min. Detectable Effect:</span>
+          <input
+            type="range"
+            min="0.01"
+            max="0.3"
+            step="0.01"
+            value={params.minimumDetectableEffect}
+            onChange={(e) =>
+              handleParamChange('minimumDetectableEffect', e.target.value)
+            }
+          />
+          <span>{Math.round(params.minimumDetectableEffect * 100)}%</span>
         </div>
 
         {renderFPSControl()}

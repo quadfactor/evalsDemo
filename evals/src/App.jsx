@@ -9,7 +9,8 @@ import {
 import './App.css';
 
 function AppContent() {
-  const { params, isRunning, setIsRunning } = useContext(PopulationContext);
+  const { params, isRunning, setIsRunning, requiredPopulationSize } =
+    useContext(PopulationContext);
 
   // Results state for Variation A
   const [impressionsA, setImpressionsA] = useState(0);
@@ -58,7 +59,7 @@ function AppContent() {
     if (!isRunning) return;
 
     // Calculate whether we've reached the target sample size
-    const halfPopulation = params.populationSize / 2;
+    const halfPopulation = requiredPopulationSize / 2;
     const sampleReached =
       impressionsA >= halfPopulation && impressionsB >= halfPopulation;
 
@@ -97,7 +98,7 @@ function AppContent() {
     isRunning,
     params.fps,
     processBatchSize,
-    params.populationSize,
+    requiredPopulationSize,
     impressionsA,
     impressionsB,
     setIsRunning,
@@ -120,7 +121,7 @@ function AppContent() {
             impressions={impressionsA}
             clicks={clicksA}
             currentClickProbability={probabilityA}
-            totalPopulation={params.populationSize}
+            totalPopulation={requiredPopulationSize}
             otherVariationData={variationB} // Pass variation B data for lift comparison
           />
           <ButtonForm
@@ -137,7 +138,7 @@ function AppContent() {
             impressions={impressionsB}
             clicks={clicksB}
             currentClickProbability={probabilityB}
-            totalPopulation={params.populationSize}
+            totalPopulation={requiredPopulationSize}
             otherVariationData={variationA} // Pass variation A data for lift comparison
           />
           <ButtonForm

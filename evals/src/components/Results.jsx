@@ -25,10 +25,28 @@ function Results({
 
   // Calculate expected total impressions for this variation (50% of population)
   const expectedImpressions = totalPopulation / 2;
+
+  // Calculate minimum sample needed for statistical power
+  const minimumSampleNeeded = Math.ceil(expectedImpressions * 0.15); // 15% of expected as a minimum threshold
+
+  // Calculate progress percentage based on minimum needed for statistical significance
   const completionPercent =
     expectedImpressions > 0
       ? Math.min(100, ((impressions / expectedImpressions) * 100).toFixed(1))
       : '0.0';
+
+  // Calculate statistical power based on current sample size
+  let currentPower = 0;
+  if (
+    impressions > 0 &&
+    otherVariationData &&
+    otherVariationData.impressions > 0
+  ) {
+    // Calculate based on current sample size relative to required size
+    const combinedSampleRatio =
+      (impressions + otherVariationData.impressions) / totalPopulation;
+    currentPower = Math.min(100, Math.round(combinedSampleRatio * 100));
+  }
 
   // Calculate CTR
   const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0;
@@ -89,13 +107,27 @@ function Results({
           total population)
         </span>
       </div>
-      <div className="progress-bar">
-        <div
-          className="progress-fill"
-          style={{ width: `${completionPercent}%` }}
-          title={`${completionPercent}% of expected sample size`}
-        ></div>
+
+      <div className="progress-container">
+        <div className="progress-bar">
+          <div
+            className="progress-fill"
+            style={{ width: `${completionPercent}%` }}
+            title={`${completionPercent}% of expected sample size`}
+          ></div>
+        </div>
+        <div className="progress-labels">
+          <span>0%</span>
+          <span
+            className="power-indicator"
+            style={{ left: `${currentPower}%` }}
+          >
+            {currentPower}% Power
+          </span>
+          <span>100%</span>
+        </div>
       </div>
+
       {isComplete && !isRunning && (
         <div className="completion-badge">Sample Complete</div>
       )}
