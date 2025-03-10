@@ -5,7 +5,7 @@ export const PopulationContext = createContext();
 export function PopulationProvider({ children }) {
   const [params, setParams] = useState({
     baseClickRate: 0.3,
-    colorPreference: 0.3,
+    colorPreference: 0.3, // Percentage of users who prefer red color
     colorImpact: 0.2,
     centerPreference: 0.4,
     centerImpact: 0.15,

@@ -35,7 +35,7 @@ function PopulationSettings() {
         </div>
 
         <div className="slider-group">
-          <span>Color preference:</span>
+          <span>Red color preference:</span>
           <input
             type="range"
             min="0"

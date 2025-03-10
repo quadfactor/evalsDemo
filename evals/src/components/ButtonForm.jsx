@@ -60,10 +60,10 @@ function ButtonForm({
     // Base chance
     let clickProbability = params.baseClickRate;
 
-    // Color impact
-    const hasPreferredColor = buttonClass === selectedColor;
+    // Color impact - specific preference for red
+    const hasPreferredColor = buttonClass === 'red';
     if (Math.random() < params.colorPreference) {
-      // This user cares about color
+      // This user cares about red color
       clickProbability += hasPreferredColor
         ? params.colorImpact
         : -params.colorImpact;
