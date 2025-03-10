@@ -56,33 +56,37 @@ function ButtonForm({
   };
 
   // Calculate if user would click based on current button state
-  const simulateUserInteraction = () => {
+  const simulateUserInteraction = (
+    currentButtonClass,
+    isCurrentTextCentered,
+    currentButtonText
+  ) => {
     // Base chance
     let clickProbability = params.baseClickRate;
 
     // Color impact - specific preference for red
-    const hasPreferredColor = buttonClass === 'red';
+    const hasPreferredColor = currentButtonClass === 'red';
     if (Math.random() < params.colorPreference) {
       // This user cares about red color
       clickProbability += hasPreferredColor
-        ? params.colorImpact // This can now be negative or positive
+        ? params.colorImpact
         : -params.colorImpact;
     }
 
     // Text centering impact
     if (Math.random() < params.centerPreference) {
       // This user cares about alignment
-      clickProbability += isTextCentered
-        ? params.centerImpact // This can now be negative or positive
+      clickProbability += isCurrentTextCentered
+        ? params.centerImpact
         : -params.centerImpact;
     }
 
     // Spelling impact
-    const hasCorrectSpelling = buttonText === baseButtonText;
+    const hasCorrectSpelling = currentButtonText === baseButtonText;
     if (Math.random() < params.spellingPreference) {
       // This user cares about spelling
       clickProbability += hasCorrectSpelling
-        ? params.spellingImpact // This can now be negative or positive
+        ? params.spellingImpact
         : -params.spellingImpact;
     }
 
@@ -107,11 +111,12 @@ function ButtonForm({
     let timeoutId;
 
     const interval = setInterval(() => {
+      // Generate all random values at once to ensure consistency
       const randomValue = Math.random();
       const centerValue = Math.random();
       const spellingValue = Math.random();
 
-      // Color logic
+      // Color logic - capture the new value before state update
       let newButtonClass;
       if (randomValue < probability) {
         newButtonClass = selectedColor;
@@ -124,7 +129,7 @@ function ButtonForm({
       }
       setButtonClass(newButtonClass);
 
-      // Text alignment logic
+      // Text alignment logic - capture new values before state update
       let newTextCentered;
       let newOffset;
       if (centerValue < centerProb) {
@@ -140,7 +145,7 @@ function ButtonForm({
       setTextOffset(newOffset);
       setIsTextCentered(newTextCentered);
 
-      // Updated spelling logic
+      // Updated spelling logic - capture new value before state update
       let newButtonText;
       if (spellingValue < spellingProb) {
         newButtonText = baseButtonText;
@@ -149,9 +154,10 @@ function ButtonForm({
       }
       setButtonText(newButtonText);
 
-      // Simulate user interaction after state updates
+      // Simulate user interaction with the new values we just calculated
+      // This ensures we're using the values that will be displayed to the user
       timeoutId = setTimeout(() => {
-        simulateUserInteraction();
+        simulateUserInteraction(newButtonClass, newTextCentered, newButtonText);
       }, 50);
     }, 1000 / fps);
 
