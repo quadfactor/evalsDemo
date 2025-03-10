@@ -9,10 +9,12 @@ function PopulationSettings() {
     setParams((prev) => ({ ...prev, [key]: Number(value) }));
   };
 
-  // Format impact values to show sign
+  // Format impact values to show as multiplicative percentages
   const formatImpact = (value) => {
-    const sign = value >= 0 ? '+' : '';
-    return `${sign}${(value * 100).toFixed(0)}%`;
+    // For a value of 0.1, this will show as "+10%"
+    const percentChange = value * 100;
+    const sign = percentChange >= 0 ? '+' : '';
+    return `${sign}${percentChange.toFixed(0)}%`;
   };
 
   return (
@@ -56,7 +58,7 @@ function PopulationSettings() {
         </div>
 
         <div className="slider-group">
-          <span>Color impact:</span>
+          <span>Red color effect:</span>
           <input
             type="range"
             className="impact-slider"
@@ -65,6 +67,7 @@ function PopulationSettings() {
             step="0.05"
             value={params.colorImpact}
             onChange={(e) => handleParamChange('colorImpact', e.target.value)}
+            title="Positive values boost red button clicks, negative values reduce non-red button clicks"
           />
           <span>{formatImpact(params.colorImpact)}</span>
         </div>
@@ -85,7 +88,7 @@ function PopulationSettings() {
         </div>
 
         <div className="slider-group">
-          <span>Center impact:</span>
+          <span>Center text effect:</span>
           <input
             type="range"
             className="impact-slider"
@@ -94,6 +97,7 @@ function PopulationSettings() {
             step="0.05"
             value={params.centerImpact}
             onChange={(e) => handleParamChange('centerImpact', e.target.value)}
+            title="Positive values boost centered text clicks, negative values reduce non-centered text clicks"
           />
           <span>{formatImpact(params.centerImpact)}</span>
         </div>
@@ -114,7 +118,7 @@ function PopulationSettings() {
         </div>
 
         <div className="slider-group">
-          <span>Spelling impact:</span>
+          <span>Correct spelling effect:</span>
           <input
             type="range"
             className="impact-slider"
@@ -125,9 +129,22 @@ function PopulationSettings() {
             onChange={(e) =>
               handleParamChange('spellingImpact', e.target.value)
             }
+            title="Positive values boost correct spelling clicks, negative values reduce incorrect spelling clicks"
           />
           <span>{formatImpact(params.spellingImpact)}</span>
         </div>
+      </div>
+      <div className="settings-info">
+        <p>
+          <strong>How effects work:</strong>
+        </p>
+        <p>
+          Positive values (+) increase clicks only when attribute is present.
+        </p>
+        <p>
+          Negative values (-) decrease clicks only when attribute is absent.
+        </p>
+        <p>Multiple effects combine multiplicatively.</p>
       </div>
     </div>
   );

@@ -1,3 +1,6 @@
+import { useContext } from 'react';
+import { PopulationContext } from '../contexts/PopulationContext';
+
 function Results({
   name,
   impressions,
@@ -5,6 +8,13 @@ function Results({
   currentClickProbability,
   onReset,
 }) {
+  const { params } = useContext(PopulationContext);
+
+  // Calculate the effective multiplier from base rate
+  const baseRate = params.baseClickRate;
+  const effectiveMultiplier =
+    baseRate > 0 ? currentClickProbability / baseRate : 0;
+
   return (
     <div className="stats-container">
       <h3>Results {name}</h3>
@@ -25,6 +35,10 @@ function Results({
       <div className="stats-row">
         <span>Current probability:</span>
         <span>{(currentClickProbability * 100).toFixed(2)}%</span>
+      </div>
+      <div className="stats-row">
+        <span>Effect multiplier:</span>
+        <span>{effectiveMultiplier.toFixed(2)}x</span>
       </div>
       <button type="button" className="reset-button" onClick={onReset}>
         Reset Stats

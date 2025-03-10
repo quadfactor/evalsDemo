@@ -61,34 +61,55 @@ function ButtonForm({
     isCurrentTextCentered,
     currentButtonText
   ) => {
-    // Base chance
-    let clickProbability = params.baseClickRate;
+    // Start with base click rate
+    let baseClickRate = params.baseClickRate;
+
+    // Use a multiplier approach for combining effects
+    let multiplier = 1.0;
 
     // Color impact - specific preference for red
     const hasPreferredColor = currentButtonClass === 'red';
     if (Math.random() < params.colorPreference) {
       // This user cares about red color
-      clickProbability += hasPreferredColor
-        ? params.colorImpact
-        : -params.colorImpact;
+      if (hasPreferredColor && params.colorImpact > 0) {
+        // Apply positive multiplier only when red is shown
+        multiplier *= 1 + params.colorImpact;
+      } else if (!hasPreferredColor && params.colorImpact < 0) {
+        // Apply negative multiplier only when non-red is shown
+        multiplier *= 1 + params.colorImpact; // params.colorImpact is already negative
+      }
+      // No effect if red isn't shown with positive impact or non-red isn't shown with negative impact
     }
 
     // Text centering impact
     if (Math.random() < params.centerPreference) {
       // This user cares about alignment
-      clickProbability += isCurrentTextCentered
-        ? params.centerImpact
-        : -params.centerImpact;
+      if (isCurrentTextCentered && params.centerImpact > 0) {
+        // Apply positive multiplier only when text is centered
+        multiplier *= 1 + params.centerImpact;
+      } else if (!isCurrentTextCentered && params.centerImpact < 0) {
+        // Apply negative multiplier only when text is not centered
+        multiplier *= 1 + params.centerImpact; // params.centerImpact is already negative
+      }
+      // No effect if centered text isn't shown with positive impact or non-centered text isn't shown with negative impact
     }
 
     // Spelling impact
     const hasCorrectSpelling = currentButtonText === baseButtonText;
     if (Math.random() < params.spellingPreference) {
       // This user cares about spelling
-      clickProbability += hasCorrectSpelling
-        ? params.spellingImpact
-        : -params.spellingImpact;
+      if (hasCorrectSpelling && params.spellingImpact > 0) {
+        // Apply positive multiplier only when spelling is correct
+        multiplier *= 1 + params.spellingImpact;
+      } else if (!hasCorrectSpelling && params.spellingImpact < 0) {
+        // Apply negative multiplier only when spelling is incorrect
+        multiplier *= 1 + params.spellingImpact; // params.spellingImpact is already negative
+      }
+      // No effect if correct spelling isn't shown with positive impact or incorrect spelling isn't shown with negative impact
     }
+
+    // Apply the multiplier to the base rate
+    let clickProbability = baseClickRate * multiplier;
 
     // Ensure probability is within valid range
     clickProbability = Math.max(0, Math.min(1, clickProbability));

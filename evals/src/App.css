@@ -344,3 +344,21 @@ input[type='range'] {
   font-size: 10px;
   color: rgba(0, 0, 0, 0.5);
 }
+
+.settings-info {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.settings-info p {
+  margin: 0.25rem 0;
+  text-align: left;
+  opacity: 0.8;
+}
+
+.settings-info p strong {
+  font-weight: bold;
+}
