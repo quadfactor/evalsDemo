@@ -59,6 +59,7 @@ function PopulationSettings() {
           <span>Color impact:</span>
           <input
             type="range"
+            className="impact-slider"
             min="-0.5"
             max="0.5"
             step="0.05"
@@ -87,6 +88,7 @@ function PopulationSettings() {
           <span>Center impact:</span>
           <input
             type="range"
+            className="impact-slider"
             min="-0.5"
             max="0.5"
             step="0.05"
@@ -115,6 +117,7 @@ function PopulationSettings() {
           <span>Spelling impact:</span>
           <input
             type="range"
+            className="impact-slider"
             min="-0.5"
             max="0.5"
             step="0.05"

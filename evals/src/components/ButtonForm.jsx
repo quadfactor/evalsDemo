@@ -104,48 +104,61 @@ function ButtonForm({
   };
 
   useEffect(() => {
+    let timeoutId;
+
     const interval = setInterval(() => {
       const randomValue = Math.random();
       const centerValue = Math.random();
       const spellingValue = Math.random();
 
       // Color logic
+      let newButtonClass;
       if (randomValue < probability) {
-        setButtonClass(selectedColor);
+        newButtonClass = selectedColor;
       } else {
         const availableColors = colorClasses.filter(
           (color) => color !== selectedColor
         );
         const colorIndex = Math.floor(Math.random() * availableColors.length);
-        setButtonClass(availableColors[colorIndex]);
+        newButtonClass = availableColors[colorIndex];
       }
+      setButtonClass(newButtonClass);
 
       // Text alignment logic
+      let newTextCentered;
+      let newOffset;
       if (centerValue < centerProb) {
-        setTextOffset({ x: 0, y: 0 });
-        setIsTextCentered(true);
+        newOffset = { x: 0, y: 0 };
+        newTextCentered = true;
       } else {
-        setTextOffset({
+        newOffset = {
           x: (Math.random() - 0.5) * 40,
           y: (Math.random() - 0.5) * 20,
-        });
-        setIsTextCentered(false);
+        };
+        newTextCentered = false;
       }
+      setTextOffset(newOffset);
+      setIsTextCentered(newTextCentered);
 
       // Updated spelling logic
+      let newButtonText;
       if (spellingValue < spellingProb) {
-        setButtonText(baseButtonText);
+        newButtonText = baseButtonText;
       } else {
-        setButtonText(generateMisspelling(baseButtonText));
+        newButtonText = generateMisspelling(baseButtonText);
       }
+      setButtonText(newButtonText);
 
       // Simulate user interaction after state updates
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         simulateUserInteraction();
       }, 50);
     }, 1000 / fps);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [
     probability,
     fps,
@@ -160,6 +173,9 @@ function ButtonForm({
     params.centerImpact,
     params.spellingPreference,
     params.spellingImpact,
+    onImpression,
+    onClick,
+    onProbabilityChange,
   ]);
 
   const handleSubmit = (e) => {
@@ -221,7 +237,7 @@ function ButtonForm({
               max="1"
               step="0.01"
               value={probability}
-              onChange={(e) => setProbability(e.target.value)}
+              onChange={(e) => setProbability(parseFloat(e.target.value))}
             />
             <span>{Math.round(probability * 100)}%</span>
           </div>
