@@ -33,6 +33,17 @@ function PopulationSettings({ onResetSimulation }) {
     }, 100);
   };
 
+  // Handle population size change
+  const handlePopulationChange = (value) => {
+    // Reset stats if population size changes
+    if (params.populationSize !== Number(value)) {
+      // Optional: auto-reset when changing population
+      // onResetSimulation();
+    }
+
+    handleParamChange('populationSize', Math.max(1000, value));
+  };
+
   // Helper for rendering FPS slider with appropriate scale
   const renderFPSControl = () => {
     const maxFPS = 1000;
@@ -109,12 +120,7 @@ function PopulationSettings({ onResetSimulation }) {
               max="1000000"
               step="1000"
               value={params.populationSize}
-              onChange={(e) =>
-                handleParamChange(
-                  'populationSize',
-                  Math.max(1000, e.target.value)
-                )
-              }
+              onChange={(e) => handlePopulationChange(e.target.value)}
               className="population-input"
             />
           </div>

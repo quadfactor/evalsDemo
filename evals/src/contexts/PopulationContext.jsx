@@ -21,7 +21,8 @@ export function PopulationProvider({ children }) {
     setParams(updater);
   }, []);
 
-  const [isRunning, setIsRunning] = useState(true);
+  // Change initial state to false (stopped) instead of true (running)
+  const [isRunning, setIsRunning] = useState(false);
 
   return (
     <PopulationContext.Provider
