@@ -99,29 +99,10 @@ function PopulationSettings({ onResetSimulation }) {
         </button>
       </div>
       <div className="slider-controls">
-        <div className="simulation-controls">
-          <button
-            className={`control-button ${isRunning ? 'stop' : 'start'} ${
-              isTurboRunning ? 'turbo-running' : ''
-            }`}
-            onClick={() => setIsRunning(!isRunning)}
-            disabled={isTurboRunning}
-          >
-            {isTurboRunning
-              ? `Simulating... ${turboProgress}%`
-              : isRunning
-              ? 'Stop Simulation'
-              : 'Start Simulation'}
-          </button>
+        {/* Simulation Controls Section - Grouped together */}
+        {renderSectionTitle('Simulation Controls')}
 
-          <button
-            className="control-button reset"
-            onClick={handleReset}
-            disabled={isTurboRunning}
-          >
-            Reset Simulation
-          </button>
-
+        <div className="settings-group">
           <div className="population-info">
             <div
               className="population-badge"
@@ -130,38 +111,92 @@ function PopulationSettings({ onResetSimulation }) {
               Population: {formatNumber(requiredPopulationSize)}
             </div>
           </div>
-        </div>
 
-        {/* Add Turbo Mode toggle switch */}
-        <div className="turbo-mode-container">
-          <div className="turbo-toggle">
-            <input
-              type="checkbox"
-              id="turbo-mode"
-              checked={params.turboMode}
-              onChange={(e) => handleParamChange('turboMode', e.target.checked)}
-              disabled={isRunning}
-            />
-            <label htmlFor="turbo-mode">Turbo Mode</label>
+          <div className="simulation-controls">
+            <button
+              className={`control-button ${isRunning ? 'stop' : 'start'} ${
+                isTurboRunning ? 'turbo-running' : ''
+              }`}
+              onClick={() => setIsRunning(!isRunning)}
+              disabled={isTurboRunning}
+            >
+              {isTurboRunning
+                ? `Simulating... ${turboProgress}%`
+                : isRunning
+                ? 'Stop Simulation'
+                : 'Start Simulation'}
+            </button>
+
+            <button
+              className="control-button reset"
+              onClick={handleReset}
+              disabled={isTurboRunning}
+            >
+              Reset Simulation
+            </button>
           </div>
-          <div className="turbo-info">
-            <span>Speed multiplier:</span>
+
+          <div className="slider-group">
+            <span>Simulation speed:</span>
             <input
               type="range"
-              min="10"
-              max="1000"
-              step="10"
-              value={params.turboSpeedMultiplier}
+              className="fps-slider"
+              min="1"
+              max="30"
+              step="1"
+              value={params.fps}
               onChange={(e) =>
-                handleParamChange('turboSpeedMultiplier', e.target.value)
+                handleParamChange('fps', parseInt(e.target.value, 10))
               }
               disabled={isRunning}
             />
-            <span>x{params.turboSpeedMultiplier}</span>
+            <span>{params.fps} FPS</span>
           </div>
+
+          {/* Move Turbo Mode inside the simulation controls group */}
+          <div className="turbo-mode-container">
+            <div className="turbo-toggle">
+              <input
+                type="checkbox"
+                id="turbo-mode"
+                checked={params.turboMode}
+                onChange={(e) =>
+                  handleParamChange('turboMode', e.target.checked)
+                }
+                disabled={isRunning}
+              />
+              <label htmlFor="turbo-mode">Turbo Mode</label>
+            </div>
+            <div className="turbo-info">
+              <span>Speed multiplier:</span>
+              <input
+                type="range"
+                min="10"
+                max="1000"
+                step="10"
+                value={params.turboSpeedMultiplier}
+                onChange={(e) =>
+                  handleParamChange('turboSpeedMultiplier', e.target.value)
+                }
+                disabled={isRunning}
+              />
+              <span>x{params.turboSpeedMultiplier}</span>
+            </div>
+          </div>
+
+          {params.turboMode && (
+            <div className="turbo-info-box">
+              <div className="turbo-icon">⚡</div>
+              <div className="turbo-description">
+                <strong>Turbo Mode:</strong> UI updates are suspended during
+                simulation for maximum speed. Only final results will be
+                displayed when the simulation completes.
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Sample Size Controls Section */}
+        {/* Statistical Controls Section */}
         {renderSectionTitle('Statistical Controls')}
 
         <div className="settings-group">
@@ -213,11 +248,6 @@ function PopulationSettings({ onResetSimulation }) {
             <span>{Math.round(params.baseClickRate * 100)}%</span>
           </div>
         </div>
-
-        {/* Simulation Speed Section */}
-        {renderSectionTitle('Simulation Controls')}
-
-        <div className="settings-group">{renderFPSControl()}</div>
 
         {/* User Preferences Section */}
         {renderSectionTitle('User Preferences')}
@@ -318,17 +348,6 @@ function PopulationSettings({ onResetSimulation }) {
           </div>
         </div>
       </div>
-
-      {params.turboMode && (
-        <div className="turbo-info-box">
-          <div className="turbo-icon">⚡</div>
-          <div className="turbo-description">
-            <strong>Turbo Mode:</strong> UI updates are suspended during
-            simulation for maximum speed. Only final results will be displayed
-            when the simulation completes.
-          </div>
-        </div>
-      )}
 
       <div className="settings-info">
         <p>
