@@ -11,12 +11,12 @@ export function PopulationProvider({ children }) {
     centerImpact: 0,
     spellingPreference: 0.6,
     spellingImpact: 0,
-    confidenceLevel: 0.95, // New parameter for confidence level (95%)
-    minimumDetectableEffect: 0.1, // New parameter for minimum detectable effect (10%)
-    fps: 3,
-    performanceMode: true,
-    turboMode: false, // New parameter to enable turbo simulation mode
-    turboSpeedMultiplier: 100, // Process this many iterations at once in turbo mode
+    confidenceLevel: 0.95,
+    minimumDetectableEffect: 0.1,
+    fps: 5, // Changed default from 3 to 5
+    // Removed performanceMode
+    turboMode: false,
+    turboSpeedMultiplier: 100,
   });
 
   // Calculate required population size automatically

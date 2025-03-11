@@ -32,14 +32,11 @@ function AppContent() {
   const variationA = { impressions: impressionsA, clicks: clicksA };
   const variationB = { impressions: impressionsB, clicks: clicksB };
 
-  // For high-volume processing in batches
+  // For high-volume processing in batches - simplified with fixed processing size
   const processBatchSize = useMemo(() => {
-    // Dynamically adjust batch size based on FPS
-    if (params.fps <= 30) return 1;
-    if (params.fps <= 100) return 5;
-    if (params.fps <= 500) return 20;
-    return 50; // For extremely high fps
-  }, [params.fps]);
+    // Fixed batch size since FPS is now limited to max 30
+    return 1; // Process impressions one by one for consistent simulation
+  }, []);
 
   // Reset all simulation stats
   const resetAllStats = () => {

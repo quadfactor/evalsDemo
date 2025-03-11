@@ -115,27 +115,21 @@ function ButtonForm({
   // For efficient tracking of impression processing
   const [lastProcessedImpression, setLastProcessedImpression] = useState(0);
 
-  // Batch processing of impressions
+  // Batch processing of impressions - simplified without performance mode
   useEffect(() => {
     if (!isRunning || impressions === lastProcessedImpression) return;
 
     // Process new impressions
     const newImpressionsCount = impressions - lastProcessedImpression;
 
-    // For high performance mode, batch process all new impressions
-    if (params.performanceMode && newImpressionsCount > 1) {
-      // Calculate average probability and simulate clicks
-      processImpressionsBatch(newImpressionsCount);
-    } else {
-      // Process impressions one by one for more accurate simulation
-      for (let i = 0; i < newImpressionsCount; i++) {
-        simulateSingleImpression();
-      }
+    // Process impressions one by one for accurate simulation
+    for (let i = 0; i < newImpressionsCount; i++) {
+      simulateSingleImpression();
     }
 
     // Update the last processed impression count
     setLastProcessedImpression(impressions);
-  }, [impressions, isRunning, params.performanceMode]);
+  }, [impressions, isRunning]);
 
   // New helper function to simulate a single impression
   const simulateSingleImpression = () => {

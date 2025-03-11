@@ -50,44 +50,24 @@ function PopulationSettings({ onResetSimulation }) {
     handleParamChange('populationSize', Math.max(1000, value));
   };
 
-  // Helper for rendering FPS slider with appropriate scale
+  // Helper for rendering FPS slider as a normal slider without hints
   const renderFPSControl = () => {
-    const maxFPS = 1000;
     const fpsValue = params.fps;
-
-    // Logarithmic scale for better control at lower values
-    const logScale = (value) => {
-      return Math.pow(10, value);
-    };
-
-    const inverseLogScale = (value) => {
-      return Math.log10(value);
-    };
-
-    const minLog = 0; // log10(1)
-    const maxLog = 3; // log10(1000)
-    const currentLog = inverseLogScale(fpsValue);
-
-    const handleLogChange = (e) => {
-      const logValue = parseFloat(e.target.value);
-      const actualFPS = Math.round(logScale(logValue));
-      handleParamChange('fps', actualFPS);
-    };
 
     return (
       <div className="slider-group">
         <span>Simulation speed:</span>
-        <div className="fps-slider-container">
-          <input
-            type="range"
-            className="fps-slider"
-            min={minLog}
-            max={maxLog}
-            step={0.01}
-            value={currentLog}
-            onChange={handleLogChange}
-          />
-        </div>
+        <input
+          type="range"
+          className="fps-slider"
+          min="1"
+          max="30"
+          step="1"
+          value={fpsValue}
+          onChange={(e) =>
+            handleParamChange('fps', parseInt(e.target.value, 10))
+          }
+        />
         <span>{fpsValue} FPS</span>
       </div>
     );
@@ -237,28 +217,7 @@ function PopulationSettings({ onResetSimulation }) {
         {/* Simulation Speed Section */}
         {renderSectionTitle('Simulation Controls')}
 
-        <div className="settings-group">
-          {renderFPSControl()}
-
-          <div className="performance-option">
-            <label>
-              <input
-                type="checkbox"
-                checked={params.performanceMode}
-                onChange={(e) =>
-                  handleParamChange(
-                    'performanceMode',
-                    e.target.checked ? true : false
-                  )
-                }
-              />
-              High Performance Mode
-            </label>
-            <span className="tooltip">
-              Optimizes rendering for high simulation speeds
-            </span>
-          </div>
-        </div>
+        <div className="settings-group">{renderFPSControl()}</div>
 
         {/* User Preferences Section */}
         {renderSectionTitle('User Preferences')}
