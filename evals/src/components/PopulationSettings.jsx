@@ -103,15 +103,6 @@ function PopulationSettings({ onResetSimulation }) {
         {renderSectionTitle('Simulation Controls')}
 
         <div className="settings-group">
-          <div className="population-info">
-            <div
-              className="population-badge"
-              title="Required population size based on statistical significance"
-            >
-              Population: {formatNumber(requiredPopulationSize)}
-            </div>
-          </div>
-
           <div className="simulation-controls">
             <button
               className={`control-button ${isRunning ? 'stop' : 'start'} ${
@@ -196,10 +187,20 @@ function PopulationSettings({ onResetSimulation }) {
           )}
         </div>
 
-        {/* Statistical Controls Section */}
+        {/* Statistical Controls Section - Now including population badge */}
         {renderSectionTitle('Statistical Controls')}
 
         <div className="settings-group">
+          {/* Move population info into statistical controls */}
+          <div className="population-info">
+            <div
+              className="population-badge"
+              title="Required population size based on statistical significance"
+            >
+              Population: {formatNumber(requiredPopulationSize)}
+            </div>
+          </div>
+
           <div className="slider-group">
             <span>Confidence Level:</span>
             <select
