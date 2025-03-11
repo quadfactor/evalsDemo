@@ -87,6 +87,37 @@ function PopulationSettings({ onResetSimulation }) {
     <div className="settings-section-title">{title}</div>
   );
 
+  // Define SVG icons
+  const playIcon = (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M8 5v14l11-7z" />
+    </svg>
+  );
+
+  const pauseIcon = (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+    </svg>
+  );
+
+  const stopIcon = (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M6 6h12v12H6z" />
+    </svg>
+  );
+
+  const fastForwardIcon = (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z" />
+    </svg>
+  );
+
+  const infoIcon = (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+    </svg>
+  );
+
   return (
     <div className={`settings-panel ${!isPanelOpen ? 'collapsed' : ''}`}>
       <div className="settings-header">
@@ -99,12 +130,12 @@ function PopulationSettings({ onResetSimulation }) {
         </button>
       </div>
       <div className="slider-controls">
-        {/* Simulation Controls Section - Redesigned as media player controls */}
+        {/* Simulation Controls Section - Redesigned with SVG icons */}
         {renderSectionTitle('Simulation Controls')}
 
         <div className="settings-group">
           <div className="media-controls">
-            {/* Play/Pause button */}
+            {/* Play/Pause button with SVG icons */}
             <button
               className={`media-button ${isRunning ? 'pause' : 'play'} ${
                 isTurboRunning ? 'turbo-running' : ''
@@ -113,20 +144,22 @@ function PopulationSettings({ onResetSimulation }) {
               disabled={isTurboRunning}
               title={isRunning ? 'Pause Simulation' : 'Play Simulation'}
             >
-              {isRunning ? '⏸️ Pause' : '▶️ Play'}
+              {isRunning ? pauseIcon : playIcon}
+              <span>{isRunning ? 'Pause' : 'Play'}</span>
             </button>
 
-            {/* Stop button (previously Reset) */}
+            {/* Stop button with SVG icon */}
             <button
               className="media-button stop"
               onClick={handleReset}
               disabled={isTurboRunning}
               title="Stop and Reset Simulation"
             >
-              ⏹️ Stop
+              {stopIcon}
+              <span>Stop</span>
             </button>
 
-            {/* Fast Forward button (replaces Turbo Mode checkbox) */}
+            {/* Fast Forward button with SVG icon */}
             <button
               className={`media-button ff ${params.turboMode ? 'active' : ''}`}
               onClick={() =>
@@ -135,7 +168,8 @@ function PopulationSettings({ onResetSimulation }) {
               disabled={isRunning}
               title="Toggle Fast Forward Mode"
             >
-              {params.turboMode ? '⏩ On' : '⏩ Off'}
+              {fastForwardIcon}
+              <span>{params.turboMode ? 'On' : 'Off'}</span>
             </button>
           </div>
 
@@ -181,7 +215,7 @@ function PopulationSettings({ onResetSimulation }) {
 
           {params.turboMode && (
             <div className="info-box ff-info">
-              <span className="info-icon">ℹ️</span>
+              <span className="info-icon">{infoIcon}</span>
               <span>
                 Fast-forward skips UI updates for maximum simulation speed
               </span>
