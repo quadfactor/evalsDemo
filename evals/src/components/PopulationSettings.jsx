@@ -99,39 +99,52 @@ function PopulationSettings({ onResetSimulation }) {
         </button>
       </div>
       <div className="slider-controls">
-        {/* Simulation Controls Section - Grouped together */}
+        {/* Simulation Controls Section - Redesigned as media player controls */}
         {renderSectionTitle('Simulation Controls')}
 
         <div className="settings-group">
-          <div className="simulation-controls">
+          <div className="media-controls">
+            {/* Play/Pause button */}
             <button
-              className={`control-button ${isRunning ? 'stop' : 'start'} ${
+              className={`media-button ${isRunning ? 'pause' : 'play'} ${
                 isTurboRunning ? 'turbo-running' : ''
               }`}
-              onClick={() => setIsRunning(!isRunning)}
+              onClick={() => !isTurboRunning && setIsRunning(!isRunning)}
               disabled={isTurboRunning}
+              title={isRunning ? 'Pause Simulation' : 'Play Simulation'}
             >
-              {isTurboRunning
-                ? `Simulating... ${turboProgress}%`
-                : isRunning
-                ? 'Stop Simulation'
-                : 'Start Simulation'}
+              {isRunning ? '⏸️ Pause' : '▶️ Play'}
             </button>
 
+            {/* Stop button (previously Reset) */}
             <button
-              className="control-button reset"
+              className="media-button stop"
               onClick={handleReset}
               disabled={isTurboRunning}
+              title="Stop and Reset Simulation"
             >
-              Reset Simulation
+              ⏹️ Stop
+            </button>
+
+            {/* Fast Forward button (replaces Turbo Mode checkbox) */}
+            <button
+              className={`media-button ff ${params.turboMode ? 'active' : ''}`}
+              onClick={() =>
+                !isRunning && handleParamChange('turboMode', !params.turboMode)
+              }
+              disabled={isRunning}
+              title="Toggle Fast Forward Mode"
+            >
+              {params.turboMode ? '⏩ On' : '⏩ Off'}
             </button>
           </div>
 
+          {/* Speed slider */}
           <div className="slider-group">
-            <span>Simulation speed:</span>
+            <span>Normal speed:</span>
             <input
               type="range"
-              className="fps-slider"
+              className="speed-slider"
               min="1"
               max="30"
               step="1"
@@ -141,53 +154,54 @@ function PopulationSettings({ onResetSimulation }) {
               }
               disabled={isRunning}
             />
-            <span>{params.fps} FPS</span>
+            <span>{params.fps}x</span>
           </div>
 
-          {/* Move Turbo Mode inside the simulation controls group */}
-          <div className="turbo-mode-container">
-            <div className="turbo-toggle">
-              <input
-                type="checkbox"
-                id="turbo-mode"
-                checked={params.turboMode}
-                onChange={(e) =>
-                  handleParamChange('turboMode', e.target.checked)
-                }
-                disabled={isRunning}
-              />
-              <label htmlFor="turbo-mode">Turbo Mode</label>
-            </div>
-            <div className="turbo-info">
-              <span>Speed multiplier:</span>
-              <input
-                type="range"
-                min="10"
-                max="1000"
-                step="10"
-                value={params.turboSpeedMultiplier}
-                onChange={(e) =>
-                  handleParamChange('turboSpeedMultiplier', e.target.value)
-                }
-                disabled={isRunning}
-              />
-              <span>x{params.turboSpeedMultiplier}</span>
-            </div>
+          {/* Fast-forward speed multiplier slider */}
+          <div
+            className={`slider-group ${
+              params.turboMode ? 'active' : 'inactive'
+            }`}
+          >
+            <span>FF speed:</span>
+            <input
+              type="range"
+              className={`speed-slider ${params.turboMode ? 'ff-active' : ''}`}
+              min="10"
+              max="1000"
+              step="10"
+              value={params.turboSpeedMultiplier}
+              onChange={(e) =>
+                handleParamChange('turboSpeedMultiplier', e.target.value)
+              }
+              disabled={isRunning || !params.turboMode}
+            />
+            <span>x{params.turboSpeedMultiplier}</span>
           </div>
 
           {params.turboMode && (
-            <div className="turbo-info-box">
-              <div className="turbo-icon">⚡</div>
-              <div className="turbo-description">
-                <strong>Turbo Mode:</strong> UI updates are suspended during
-                simulation for maximum speed. Only final results will be
-                displayed when the simulation completes.
+            <div className="info-box ff-info">
+              <span className="info-icon">ℹ️</span>
+              <span>
+                Fast-forward skips UI updates for maximum simulation speed
+              </span>
+            </div>
+          )}
+
+          {isTurboRunning && (
+            <div className="progress-indicator">
+              <div className="progress-track">
+                <div
+                  className="progress-fill"
+                  style={{ width: `${turboProgress}%` }}
+                ></div>
               </div>
+              <span>{turboProgress}% complete</span>
             </div>
           )}
         </div>
 
-        {/* Statistical Controls Section - Now including population badge */}
+        {/* Statistical Controls Section */}
         {renderSectionTitle('Statistical Controls')}
 
         <div className="settings-group">
