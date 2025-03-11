@@ -102,6 +102,11 @@ function PopulationSettings({ onResetSimulation }) {
     return new Intl.NumberFormat().format(Math.round(num));
   };
 
+  // Helper for rendering a section title
+  const renderSectionTitle = (title) => (
+    <div className="settings-section-title">{title}</div>
+  );
+
   return (
     <div className={`settings-panel ${!isPanelOpen ? 'collapsed' : ''}`}>
       <div className="settings-header">
@@ -176,163 +181,182 @@ function PopulationSettings({ onResetSimulation }) {
           </div>
         </div>
 
-        <div className="slider-group">
-          <span>Confidence Level:</span>
-          <select
-            className="confidence-select"
-            value={params.confidenceLevel}
-            onChange={(e) =>
-              handleParamChange('confidenceLevel', e.target.value)
-            }
-          >
-            <option value="0.80">80%</option>
-            <option value="0.85">85%</option>
-            <option value="0.90">90%</option>
-            <option value="0.95">95%</option>
-            <option value="0.99">99%</option>
-          </select>
-          <span>{Math.round(params.confidenceLevel * 100)}%</span>
-        </div>
+        {/* Sample Size Controls Section */}
+        {renderSectionTitle('Statistical Controls')}
 
-        <div className="slider-group">
-          <span>Min. Detectable Effect:</span>
-          <input
-            type="range"
-            min="0.01"
-            max="0.3"
-            step="0.01"
-            value={params.minimumDetectableEffect}
-            onChange={(e) =>
-              handleParamChange('minimumDetectableEffect', e.target.value)
-            }
-          />
-          <span>{Math.round(params.minimumDetectableEffect * 100)}%</span>
-        </div>
-
-        {renderFPSControl()}
-
-        <div className="performance-option">
-          <label>
-            <input
-              type="checkbox"
-              checked={params.performanceMode}
+        <div className="settings-group">
+          <div className="slider-group">
+            <span>Confidence Level:</span>
+            <select
+              className="confidence-select"
+              value={params.confidenceLevel}
               onChange={(e) =>
-                handleParamChange(
-                  'performanceMode',
-                  e.target.checked ? true : false
-                )
+                handleParamChange('confidenceLevel', e.target.value)
+              }
+            >
+              <option value="0.80">80%</option>
+              <option value="0.85">85%</option>
+              <option value="0.90">90%</option>
+              <option value="0.95">95%</option>
+              <option value="0.99">99%</option>
+            </select>
+            <span>{Math.round(params.confidenceLevel * 100)}%</span>
+          </div>
+
+          <div className="slider-group">
+            <span>Min. Detectable Effect:</span>
+            <input
+              type="range"
+              min="0.01"
+              max="0.3"
+              step="0.01"
+              value={params.minimumDetectableEffect}
+              onChange={(e) =>
+                handleParamChange('minimumDetectableEffect', e.target.value)
               }
             />
-            High Performance Mode
-          </label>
-          <span className="tooltip">
-            Optimizes rendering for high simulation speeds
-          </span>
+            <span>{Math.round(params.minimumDetectableEffect * 100)}%</span>
+          </div>
+
+          <div className="slider-group">
+            <span>Base click rate:</span>
+            <input
+              type="range"
+              min="0.05"
+              max="0.6"
+              step="0.05"
+              value={params.baseClickRate}
+              onChange={(e) =>
+                handleParamChange('baseClickRate', e.target.value)
+              }
+            />
+            <span>{Math.round(params.baseClickRate * 100)}%</span>
+          </div>
         </div>
 
-        <div className="slider-group">
-          <span>Base click rate:</span>
-          <input
-            type="range"
-            min="0.05"
-            max="0.6"
-            step="0.05"
-            value={params.baseClickRate}
-            onChange={(e) => handleParamChange('baseClickRate', e.target.value)}
-          />
-          <span>{Math.round(params.baseClickRate * 100)}%</span>
+        {/* Simulation Speed Section */}
+        {renderSectionTitle('Simulation Controls')}
+
+        <div className="settings-group">
+          {renderFPSControl()}
+
+          <div className="performance-option">
+            <label>
+              <input
+                type="checkbox"
+                checked={params.performanceMode}
+                onChange={(e) =>
+                  handleParamChange(
+                    'performanceMode',
+                    e.target.checked ? true : false
+                  )
+                }
+              />
+              High Performance Mode
+            </label>
+            <span className="tooltip">
+              Optimizes rendering for high simulation speeds
+            </span>
+          </div>
         </div>
 
-        <div className="slider-group">
-          <span>Red color preference:</span>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.05"
-            value={params.colorPreference}
-            onChange={(e) =>
-              handleParamChange('colorPreference', e.target.value)
-            }
-          />
-          <span>{Math.round(params.colorPreference * 100)}%</span>
-        </div>
+        {/* User Preferences Section */}
+        {renderSectionTitle('User Preferences')}
 
-        <div className="slider-group">
-          <span>Red color effect:</span>
-          <input
-            type="range"
-            className="impact-slider"
-            min="-0.5"
-            max="0.5"
-            step="0.05"
-            value={params.colorImpact}
-            onChange={(e) => handleParamChange('colorImpact', e.target.value)}
-            title="Positive values boost red button clicks, negative values reduce non-red button clicks"
-          />
-          <span>{formatImpact(params.colorImpact)}</span>
-        </div>
+        <div className="settings-group">
+          <div className="slider-group">
+            <span>Red color preference:</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={params.colorPreference}
+              onChange={(e) =>
+                handleParamChange('colorPreference', e.target.value)
+              }
+            />
+            <span>{Math.round(params.colorPreference * 100)}%</span>
+          </div>
 
-        <div className="slider-group">
-          <span>Center preference:</span>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.05"
-            value={params.centerPreference}
-            onChange={(e) =>
-              handleParamChange('centerPreference', e.target.value)
-            }
-          />
-          <span>{Math.round(params.centerPreference * 100)}%</span>
-        </div>
+          <div className="slider-group">
+            <span>Red color effect:</span>
+            <input
+              type="range"
+              className="impact-slider"
+              min="-0.5"
+              max="0.5"
+              step="0.05"
+              value={params.colorImpact}
+              onChange={(e) => handleParamChange('colorImpact', e.target.value)}
+              title="Positive values boost red button clicks, negative values reduce non-red button clicks"
+            />
+            <span>{formatImpact(params.colorImpact)}</span>
+          </div>
 
-        <div className="slider-group">
-          <span>Center text effect:</span>
-          <input
-            type="range"
-            className="impact-slider"
-            min="-0.5"
-            max="0.5"
-            step="0.05"
-            value={params.centerImpact}
-            onChange={(e) => handleParamChange('centerImpact', e.target.value)}
-            title="Positive values boost centered text clicks, negative values reduce non-centered text clicks"
-          />
-          <span>{formatImpact(params.centerImpact)}</span>
-        </div>
+          <div className="slider-group">
+            <span>Center preference:</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={params.centerPreference}
+              onChange={(e) =>
+                handleParamChange('centerPreference', e.target.value)
+              }
+            />
+            <span>{Math.round(params.centerPreference * 100)}%</span>
+          </div>
 
-        <div className="slider-group">
-          <span>Spelling preference:</span>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.05"
-            value={params.spellingPreference}
-            onChange={(e) =>
-              handleParamChange('spellingPreference', e.target.value)
-            }
-          />
-          <span>{Math.round(params.spellingPreference * 100)}%</span>
-        </div>
+          <div className="slider-group">
+            <span>Center text effect:</span>
+            <input
+              type="range"
+              className="impact-slider"
+              min="-0.5"
+              max="0.5"
+              step="0.05"
+              value={params.centerImpact}
+              onChange={(e) =>
+                handleParamChange('centerImpact', e.target.value)
+              }
+              title="Positive values boost centered text clicks, negative values reduce non-centered text clicks"
+            />
+            <span>{formatImpact(params.centerImpact)}</span>
+          </div>
 
-        <div className="slider-group">
-          <span>Correct spelling effect:</span>
-          <input
-            type="range"
-            className="impact-slider"
-            min="-0.5"
-            max="0.5"
-            step="0.05"
-            value={params.spellingImpact}
-            onChange={(e) =>
-              handleParamChange('spellingImpact', e.target.value)
-            }
-            title="Positive values boost correct spelling clicks, negative values reduce incorrect spelling clicks"
-          />
-          <span>{formatImpact(params.spellingImpact)}</span>
+          <div className="slider-group">
+            <span>Spelling preference:</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={params.spellingPreference}
+              onChange={(e) =>
+                handleParamChange('spellingPreference', e.target.value)
+              }
+            />
+            <span>{Math.round(params.spellingPreference * 100)}%</span>
+          </div>
+
+          <div className="slider-group">
+            <span>Correct spelling effect:</span>
+            <input
+              type="range"
+              className="impact-slider"
+              min="-0.5"
+              max="0.5"
+              step="0.05"
+              value={params.spellingImpact}
+              onChange={(e) =>
+                handleParamChange('spellingImpact', e.target.value)
+              }
+              title="Positive values boost correct spelling clicks, negative values reduce incorrect spelling clicks"
+            />
+            <span>{formatImpact(params.spellingImpact)}</span>
+          </div>
         </div>
       </div>
 
