@@ -847,7 +847,8 @@ input[type='range'] {
 }
 
 .slider-group.inactive {
-  opacity: 0.5;
+  opacity: 0.8; /* Less faded out */
+  pointer-events: all; /* Keep it interactive */
 }
 
 .slider-group.active {
@@ -945,3 +946,20 @@ input[type='range'] {
 }
 
 /* ...existing button styles... */
+
+/* Update fast-forward button styling */
+.media-button.ff {
+  position: relative;
+}
+
+.media-button.ff.active {
+  background-color: #ff9800; /* Change bg color when active */
+}
+
+/* Always show the Fast Forward slider */
+.slider-group.inactive {
+  opacity: 0.8; /* Less faded out */
+  pointer-events: all; /* Keep it interactive */
+}
+
+/* ...existing styles... */

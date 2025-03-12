@@ -77,6 +77,16 @@ function PopulationSettings({ onResetSimulation }) {
   const isTurboRunning =
     isRunning && params.turboMode && turboProgress > 0 && turboProgress < 100;
 
+  // Function to toggle fast forward mode
+  const toggleFastForward = () => {
+    handleParamChange('turboMode', !params.turboMode);
+
+    // If we're currently paused and turning on fast forward, automatically start the simulation
+    if (!isRunning && !params.turboMode) {
+      setIsRunning(true);
+    }
+  };
+
   // Format numbers for display
   const formatNumber = (num) => {
     return new Intl.NumberFormat().format(Math.round(num));
@@ -159,13 +169,10 @@ function PopulationSettings({ onResetSimulation }) {
               <span>Stop</span>
             </button>
 
-            {/* Fast Forward button with SVG icon */}
+            {/* Fast Forward button with SVG icon - now always enabled */}
             <button
               className={`media-button ff ${params.turboMode ? 'active' : ''}`}
-              onClick={() =>
-                !isRunning && handleParamChange('turboMode', !params.turboMode)
-              }
-              disabled={isRunning}
+              onClick={toggleFastForward}
               title="Toggle Fast Forward Mode"
             >
               {fastForwardIcon}
@@ -186,17 +193,15 @@ function PopulationSettings({ onResetSimulation }) {
               onChange={(e) =>
                 handleParamChange('fps', parseInt(e.target.value, 10))
               }
-              disabled={isRunning}
+              disabled={
+                isRunning && params.turboMode
+              } /* Only disable when in turbo mode */
             />
             <span>{params.fps}x</span>
           </div>
 
-          {/* Fast-forward speed multiplier slider */}
-          <div
-            className={`slider-group ${
-              params.turboMode ? 'active' : 'inactive'
-            }`}
-          >
+          {/* Fast-forward speed multiplier slider - now always active */}
+          <div className="slider-group">
             <span>FF speed:</span>
             <input
               type="range"
@@ -208,19 +213,18 @@ function PopulationSettings({ onResetSimulation }) {
               onChange={(e) =>
                 handleParamChange('turboSpeedMultiplier', e.target.value)
               }
-              disabled={isRunning || !params.turboMode}
             />
             <span>x{params.turboSpeedMultiplier}</span>
           </div>
 
-          {params.turboMode && (
-            <div className="info-box ff-info">
-              <span className="info-icon">{infoIcon}</span>
-              <span>
-                Fast-forward skips UI updates for maximum simulation speed
-              </span>
-            </div>
-          )}
+          {/* Info box that's always shown */}
+          <div className="info-box ff-info">
+            <span className="info-icon">{infoIcon}</span>
+            <span>
+              Fast-forward skips UI updates for maximum simulation speed.
+              {params.turboMode ? ' Currently active.' : ''}
+            </span>
+          </div>
 
           {isTurboRunning && (
             <div className="progress-indicator">
