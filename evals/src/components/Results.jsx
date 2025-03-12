@@ -12,11 +12,6 @@ function Results({
 }) {
   const { params, isRunning } = useContext(PopulationContext);
 
-  // Calculate the effective multiplier from base rate
-  const baseRate = params.baseClickRate;
-  const effectiveMultiplier =
-    baseRate > 0 ? currentClickProbability / baseRate : 0;
-
   // Calculate population reach percentage (against the total population)
   const populationReachPercent =
     totalPopulation > 0
@@ -26,30 +21,14 @@ function Results({
   // Calculate expected total impressions for this variation (50% of population)
   const expectedImpressions = totalPopulation / 2;
 
-  // Calculate minimum sample needed for statistical power
-  const minimumSampleNeeded = Math.ceil(expectedImpressions * 0.15); // 15% of expected as a minimum threshold
-
-  // Calculate progress percentage based on minimum needed for statistical significance
+  // Calculate completion percentage based on expected sample size
   const completionPercent =
     expectedImpressions > 0
       ? Math.min(100, ((impressions / expectedImpressions) * 100).toFixed(1))
       : '0.0';
 
-  // Calculate statistical power based on current sample size
-  let currentPower = 0;
-  if (
-    impressions > 0 &&
-    otherVariationData &&
-    otherVariationData.impressions > 0
-  ) {
-    // Calculate based on current sample size relative to required size
-    const combinedSampleRatio =
-      (impressions + otherVariationData.impressions) / totalPopulation;
-    currentPower = Math.min(100, Math.round(combinedSampleRatio * 100));
-  }
-
-  // Calculate CTR
-  const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0;
+  // Calculate CR (click rate)
+  const cr = impressions > 0 ? (clicks / impressions) * 100 : 0;
 
   // Is this variation's sample fully collected?
   const isComplete = impressions >= expectedImpressions;
@@ -116,28 +95,18 @@ function Results({
             title={`${completionPercent}% of expected sample size`}
           ></div>
         </div>
-        <div className="progress-labels">
-          <span>0%</span>
-          <span
-            className="power-indicator"
-            style={{ left: `${currentPower}%` }}
-          >
-            {currentPower}% Power
-          </span>
-          <span>100%</span>
-        </div>
+        {/* Removed the power indicator line */}
       </div>
 
-      {isComplete && !isRunning && (
-        <div className="completion-badge">Sample Complete</div>
-      )}
+      {/* Removed sample complete badge */}
+
       <div className="stats-row">
         <span>Clicks:</span>
         <span>{clicks}</span>
       </div>
       <div className="stats-row">
-        <span>CTR:</span>
-        <span>{ctr.toFixed(2)}%</span>
+        <span>CR:</span>
+        <span>{cr.toFixed(2)}%</span>
       </div>
 
       {/* Lift compared to other variation with statistical significance */}
@@ -163,14 +132,8 @@ function Results({
         </div>
       )}
 
-      <div className="stats-row">
-        <span>Current probability:</span>
-        <span>{(currentClickProbability * 100).toFixed(2)}%</span>
-      </div>
-      <div className="stats-row">
-        <span>Effect multiplier:</span>
-        <span>{effectiveMultiplier.toFixed(2)}x</span>
-      </div>
+      {/* Removed current probability stat */}
+      {/* Removed effect multiplier stat */}
     </div>
   );
 }
