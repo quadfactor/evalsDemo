@@ -123,8 +123,10 @@ function AppContent() {
       setClicksB(currentClicks.b);
 
       // Calculate and update probabilities
-      const probA = simulateTestClick('A', params);
-      const probB = simulateTestClick('B', params);
+      // This needs to be based on the current parameters to reflect correct probabilities
+      // after a reset
+      const probA = calculateClickProbability('A', params);
+      const probB = calculateClickProbability('B', params);
       setProbabilityA(probA);
       setProbabilityB(probB);
 
@@ -157,6 +159,8 @@ function AppContent() {
     impressionsB,
     clicksA,
     clicksB,
+    setIsRunning,
+    setTurboProgress,
   ]);
 
   // Helper function to simulate a click based on parameters
@@ -181,18 +185,29 @@ function AppContent() {
     return Math.random() < clickProbability;
   };
 
-  // Function to simulate test click for calculating probability
-  const simulateTestClick = (variation, params) => {
-    // Similar to simulateClick but just returns the probability
+  // Helper function to calculate click probability based on parameters
+  const calculateClickProbability = (variation, params) => {
+    // Start with base click rate
     let clickProbability = params.baseClickRate;
     let multiplier = 1.0;
 
-    if (variation === 'B') {
-      multiplier *= 1 + params.colorPreference * params.colorImpact;
+    // Apply each effect based on probability
+    // Color effect (assuming variation B is red)
+    if (variation === 'B' && Math.random() < params.colorPreference) {
+      multiplier *= 1 + params.colorImpact;
     }
 
-    // Simplified for turbo mode
-    return clickProbability * multiplier;
+    // Apply other effects similar to ButtonForm logic
+    // Apply multiplier
+    clickProbability *= multiplier;
+
+    return clickProbability;
+  };
+
+  // Function to simulate test click for calculating probability
+  const simulateTestClick = (variation, params) => {
+    // Use the more accurate calculation function
+    return calculateClickProbability(variation, params);
   };
 
   // Effect to start turbo mode when enabled

@@ -12,6 +12,7 @@ function PopulationSettings({ onResetSimulation }) {
     totalImpressions, // Add this to track total impressions from context
     sampleSizeReached, // Add this to track if sample size is reached
     resetSampleComplete, // Add this function to reset sample complete flag
+    setTurboProgress, // Add this prop to ensure we have access to it
   } = useContext(PopulationContext);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
 
@@ -41,8 +42,13 @@ function PopulationSettings({ onResetSimulation }) {
 
     // Add a small delay before allowing to restart
     setTimeout(() => {
-      // Can optionally restart simulation automatically
-      // setIsRunning(true);
+      // Keep turbo mode setting intact if it was previously enabled
+      if (params.turboMode) {
+        // Ensure turbo mode is retained with 100x speed
+        handleParamChange('turboSpeedMultiplier', 100);
+        // Restart simulation automatically if in turbo mode
+        setIsRunning(true);
+      }
     }, 100);
   };
 
@@ -99,15 +105,18 @@ function PopulationSettings({ onResetSimulation }) {
       return;
     }
 
-    // Toggle turbo mode and set default multiplier to 100x
-    handleParamChange('turboMode', !params.turboMode);
+    // Toggle turbo mode
+    const newTurboMode = !params.turboMode;
+    handleParamChange('turboMode', newTurboMode);
 
     // Always set to default 100x when enabling
-    if (!params.turboMode) {
+    if (newTurboMode) {
       handleParamChange('turboSpeedMultiplier', 100);
 
+      // Reset turbo progress to ensure it starts fresh
+      setTurboProgress(0);
+
       // Start the simulation if it's not already running
-      // This will work after reset as well
       if (!isRunning) {
         setIsRunning(true);
       }
@@ -229,9 +238,9 @@ function PopulationSettings({ onResetSimulation }) {
             </div>
           )}
 
-          {/* Speed slider */}
+          {/* Speed slider - Updated to "Refresh Rate" */}
           <div className="slider-group">
-            <span>Normal speed:</span>
+            <span>Refresh Rate:</span>
             <input
               type="range"
               className="speed-slider"
@@ -246,7 +255,7 @@ function PopulationSettings({ onResetSimulation }) {
                 isRunning && params.turboMode
               } /* Only disable when in turbo mode */
             />
-            <span>{params.fps}x</span>
+            <span>{params.fps} FPS</span>
           </div>
 
           {/* Remove Fast-forward speed multiplier slider */}

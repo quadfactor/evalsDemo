@@ -97,7 +97,7 @@ export function PopulationProvider({ children }) {
         setIsRunning,
         requiredPopulationSize,
         turboProgress,
-        setTurboProgress,
+        setTurboProgress, // Make sure this is explicitly included in the context value
         totalImpressions,
         updateTotalImpressions,
         sampleSizeReached,
