@@ -16,8 +16,8 @@ export function PopulationProvider({ children }) {
     fps: 5, // Changed default from 3 to 5
     turboMode: false,
     turboSpeedMultiplier: 100, // Fixed at 100x speed
-    turboChunkSize: 10000, // Add chunk size parameter for turbo mode
-    turboPauseMs: 10, // Add pause between chunks in milliseconds
+    turboChunkSize: 5000, // Reduced from 10000 to 5000 for more frequent updates
+    turboPauseMs: 0, // Set to 0 for maximum speed, the UI update throttling will handle responsiveness
   });
 
   // Add state to track if sample size has been reached

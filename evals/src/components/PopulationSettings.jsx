@@ -176,6 +176,28 @@ function PopulationSettings({ onResetSimulation }) {
     </svg>
   );
 
+  // Add a status message for chunked operations with counts
+  const getChunkedOperationMessage = () => {
+    if (!isChunkedOperationRunning) return null;
+
+    // Calculate how many impressions have been processed
+    const totalRequired = requiredPopulationSize;
+    const totalProcessed = totalImpressions;
+    const percentComplete = Math.round((totalProcessed / totalRequired) * 100);
+
+    const formattedTotal = new Intl.NumberFormat().format(totalProcessed);
+    const formattedRequired = new Intl.NumberFormat().format(totalRequired);
+
+    return (
+      <div className="chunked-operation-message">
+        <span>
+          Processing simulation: {formattedTotal} of {formattedRequired}{' '}
+          impressions ({percentComplete}% complete)
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div className={`settings-panel ${!isPanelOpen ? 'collapsed' : ''}`}>
       <div className="settings-header">
@@ -255,14 +277,34 @@ function PopulationSettings({ onResetSimulation }) {
             </button>
           </div>
 
-          {/* Add a special message during chunked operation */}
+          {/* Add a special message during chunked operation with more details */}
           {isChunkedOperationRunning && (
-            <div className="sample-complete-message">
+            <div
+              className="sample-complete-message"
+              style={{
+                backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                borderLeftColor: '#2196f3',
+              }}
+            >
               <span className="info-icon">⏱️</span>
-              <span>
-                Processing large simulation in chunks to prevent browser
-                freezing...
-              </span>
+              {getChunkedOperationMessage()}
+            </div>
+          )}
+
+          {/* Show regular progress indicator for turbo mode */}
+          {isChunkedOperationRunning && (
+            <div className="progress-indicator">
+              <div className="progress-track">
+                <div
+                  className="progress-fill"
+                  style={{
+                    width: `${turboProgress}%`,
+                    backgroundColor: '#2196f3',
+                    transition: 'width 0.3s ease',
+                  }}
+                ></div>
+              </div>
+              <span>{turboProgress}% complete</span>
             </div>
           )}
 

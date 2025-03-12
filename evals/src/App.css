@@ -1008,3 +1008,59 @@ input[type='range'] {
 }
 
 /* ...existing styles... */
+
+/* Added styles for chunked operation message */
+.chunked-operation-message {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.chunked-operation-message span {
+  font-size: 0.95rem;
+  color: #2196f3;
+}
+
+/* Update progress indicator style during chunked operation */
+.progress-indicator {
+  width: 100%;
+  margin: 8px 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px; /* Slightly taller */
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #ff9800;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* More visible animation for progress fill during processing */
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+
+.isChunkedOperationRunning .progress-fill {
+  animation: pulse 2s infinite;
+}
+
+/* ...existing styles... */

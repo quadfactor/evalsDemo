@@ -98,7 +98,11 @@ function AppContent() {
     return clickProbability;
   };
 
-  // Simulate multiple steps at once for turbo mode - IMPROVED VERSION
+  // Track last UI update time for throttling updates
+  const [lastUIUpdateTime, setLastUIUpdateTime] = useState(0);
+  const UI_UPDATE_INTERVAL_MS = 100; // Update UI at most every 100ms
+
+  // Simulate multiple steps at once for turbo mode - IMPROVED VERSION with UI updates
   const simulateTurboMode = useCallback(() => {
     if (!isRunning || !params.turboMode) return;
 
@@ -116,16 +120,27 @@ function AppContent() {
     const totalIterationsNeeded =
       requiredPopulationSize - (impressionsA + impressionsB);
 
+    // Adjust chunk size based on total iterations needed
+    // Use smaller chunks for better UI responsiveness
+    const chunkSize = Math.min(
+      params.turboChunkSize,
+      Math.max(100, Math.floor(totalIterationsNeeded / 50)) // At least 100, but aim for 50 chunks total
+    );
+
+    console.log(
+      `Starting turbo mode with ${totalIterationsNeeded} iterations using chunk size ${chunkSize}`
+    );
+
     // Create a function that processes one chunk of the simulation
     const processChunk = (processedSoFar, resolve) => {
-      // Determine chunk size
-      const chunkSize = Math.min(
-        params.turboChunkSize,
+      // Determine this chunk's size (may be smaller for last chunk)
+      const thisChunkSize = Math.min(
+        chunkSize,
         totalIterationsNeeded - processedSoFar
       );
 
       // Process this chunk
-      for (let i = 0; i < chunkSize; i++) {
+      for (let i = 0; i < thisChunkSize; i++) {
         // Assign to variation and compute clicks
         const assignToA =
           (Math.random() < 0.5 && currentImpressions.a < halfPopulation) ||
@@ -157,11 +172,30 @@ function AppContent() {
       }
 
       // Calculate progress as a percentage
-      const totalProcessed = processedSoFar + chunkSize;
+      const totalProcessed = processedSoFar + thisChunkSize;
       const progress = Math.floor(
         (totalProcessed / totalIterationsNeeded) * 100
       );
       setTurboProgress(progress);
+
+      // Update the UI with current results periodically
+      const now = Date.now();
+      if (now - lastUIUpdateTime > UI_UPDATE_INTERVAL_MS) {
+        // Update impressions and clicks in the UI
+        setImpressionsA(currentImpressions.a);
+        setClicksA(currentClicks.a);
+        setImpressionsB(currentImpressions.b);
+        setClicksB(currentClicks.b);
+
+        // Calculate and update probabilities
+        const probA = calculateClickProbability('A', params);
+        const probB = calculateClickProbability('B', params);
+        setProbabilityA(probA);
+        setProbabilityB(probB);
+
+        // Update timestamp for throttling
+        setLastUIUpdateTime(now);
+      }
 
       // If we've processed everything or reached population target
       if (
@@ -169,7 +203,7 @@ function AppContent() {
         (currentImpressions.a >= halfPopulation &&
           currentImpressions.b >= halfPopulation)
       ) {
-        // Update state with final values
+        // Final UI update to ensure all state is current
         setImpressionsA(currentImpressions.a);
         setClicksA(currentClicks.a);
         setImpressionsB(currentImpressions.b);
@@ -189,6 +223,7 @@ function AppContent() {
         resolve();
       } else {
         // Schedule next chunk with a small delay to allow UI updates
+        // This creates a more responsive feel while still being fast
         setTimeout(() => {
           processChunk(totalProcessed, resolve);
         }, params.turboPauseMs);
@@ -213,6 +248,7 @@ function AppContent() {
     setIsRunning,
     setTurboProgress,
     setIsChunkedOperationRunning,
+    lastUIUpdateTime,
   ]);
 
   // Function to simulate test click for calculating probability
