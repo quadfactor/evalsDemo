@@ -84,15 +84,33 @@ function PopulationSettings({ onResetSimulation }) {
   const isTurboRunning =
     isRunning && params.turboMode && turboProgress > 0 && turboProgress < 100;
 
+  // Add useEffect to handle sample size completion
+  useEffect(() => {
+    // When sample size is reached, ensure turbo mode is turned off
+    if (sampleSizeReached && params.turboMode) {
+      handleParamChange('turboMode', false);
+    }
+  }, [sampleSizeReached]);
+
   // Function to toggle fast forward mode
   const toggleFastForward = () => {
-    // Toggle turbo mode
+    // Don't allow enabling if sample size reached
+    if (sampleSizeReached && !params.turboMode) {
+      return;
+    }
+
+    // Toggle turbo mode and set default multiplier to 100x
     handleParamChange('turboMode', !params.turboMode);
 
-    // If we're currently paused and turning on fast forward, automatically start the simulation
-    // But only if sample size hasn't been reached
-    if (!isRunning && !params.turboMode && !sampleSizeReached) {
-      setIsRunning(true);
+    // Always set to default 100x when enabling
+    if (!params.turboMode) {
+      handleParamChange('turboSpeedMultiplier', 100);
+
+      // Start the simulation if it's not already running
+      // This will work after reset as well
+      if (!isRunning) {
+        setIsRunning(true);
+      }
     }
   };
 
@@ -185,7 +203,7 @@ function PopulationSettings({ onResetSimulation }) {
               <span>Reset</span>
             </button>
 
-            {/* Fast Forward button with SVG icon - now disabled if sample size reached */}
+            {/* Fast Forward button with SVG icon - now with fixed 100x speed */}
             <button
               className={`media-button ff ${params.turboMode ? 'active' : ''}`}
               onClick={toggleFastForward}
@@ -193,7 +211,7 @@ function PopulationSettings({ onResetSimulation }) {
               title={
                 sampleSizeReached
                   ? 'Sample size reached, reset to run again'
-                  : 'Toggle Fast Forward Mode'
+                  : 'Toggle Fast Forward Mode (100x speed)'
               }
             >
               {fastForwardIcon}
@@ -231,31 +249,18 @@ function PopulationSettings({ onResetSimulation }) {
             <span>{params.fps}x</span>
           </div>
 
-          {/* Fast-forward speed multiplier slider - now always active */}
-          <div className="slider-group">
-            <span>FF speed:</span>
-            <input
-              type="range"
-              className={`speed-slider ${params.turboMode ? 'ff-active' : ''}`}
-              min="10"
-              max="1000"
-              step="10"
-              value={params.turboSpeedMultiplier}
-              onChange={(e) =>
-                handleParamChange('turboSpeedMultiplier', e.target.value)
-              }
-            />
-            <span>x{params.turboSpeedMultiplier}</span>
-          </div>
+          {/* Remove Fast-forward speed multiplier slider */}
 
-          {/* Info box that's always shown */}
-          <div className="info-box ff-info">
-            <span className="info-icon">{infoIcon}</span>
-            <span>
-              Fast-forward skips UI updates for maximum simulation speed.
-              {params.turboMode ? ' Currently active.' : ''}
-            </span>
-          </div>
+          {/* Update info box to include the fixed speed */}
+          {params.turboMode && (
+            <div className="info-box ff-info">
+              <span className="info-icon">{infoIcon}</span>
+              <span>
+                Fast-forward runs at 100x speed and skips UI updates for maximum
+                simulation speed.
+              </span>
+            </div>
+          )}
 
           {isTurboRunning && (
             <div className="progress-indicator">

@@ -14,9 +14,8 @@ export function PopulationProvider({ children }) {
     confidenceLevel: 0.95,
     minimumDetectableEffect: 0.1,
     fps: 5, // Changed default from 3 to 5
-    // Removed performanceMode
     turboMode: false,
-    turboSpeedMultiplier: 100,
+    turboSpeedMultiplier: 100, // Fixed at 100x speed
   });
 
   // Add state to track if sample size has been reached
@@ -74,9 +73,13 @@ export function PopulationProvider({ children }) {
         setSampleSizeReached(true);
         // Automatically stop simulation when sample size is reached
         setIsRunning(false);
+        // Turn off turbo mode when sample size is reached
+        if (params.turboMode) {
+          setParams((prev) => ({ ...prev, turboMode: false }));
+        }
       }
     },
-    [requiredPopulationSize]
+    [requiredPopulationSize, params.turboMode]
   );
 
   // Function to reset sample complete flag
