@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { PopulationContext } from '../contexts/PopulationContext';
 
 function PopulationSettings({ onResetSimulation }) {
@@ -9,6 +9,9 @@ function PopulationSettings({ onResetSimulation }) {
     setIsRunning,
     requiredPopulationSize,
     turboProgress,
+    totalImpressions, // Add this to track total impressions from context
+    sampleSizeReached, // Add this to track if sample size is reached
+    resetSampleComplete, // Add this function to reset sample complete flag
   } = useContext(PopulationContext);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
 
@@ -29,8 +32,12 @@ function PopulationSettings({ onResetSimulation }) {
     // Stop the simulation first
     setIsRunning(false);
 
-    // Reset stats
+    // Reset stats and sample complete flag
     onResetSimulation();
+    resetSampleComplete();
+
+    // Important: Reset turbo progress to ensure fast forward works after reset
+    setTurboProgress(0);
 
     // Add a small delay before allowing to restart
     setTimeout(() => {
@@ -79,10 +86,12 @@ function PopulationSettings({ onResetSimulation }) {
 
   // Function to toggle fast forward mode
   const toggleFastForward = () => {
+    // Toggle turbo mode
     handleParamChange('turboMode', !params.turboMode);
 
     // If we're currently paused and turning on fast forward, automatically start the simulation
-    if (!isRunning && !params.turboMode) {
+    // But only if sample size hasn't been reached
+    if (!isRunning && !params.turboMode && !sampleSizeReached) {
       setIsRunning(true);
     }
   };
@@ -110,9 +119,10 @@ function PopulationSettings({ onResetSimulation }) {
     </svg>
   );
 
-  const stopIcon = (
+  // Replace stop icon with refresh/reset icon
+  const resetIcon = (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M6 6h12v12H6z" />
+      <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
     </svg>
   );
 
@@ -145,40 +155,61 @@ function PopulationSettings({ onResetSimulation }) {
 
         <div className="settings-group">
           <div className="media-controls">
-            {/* Play/Pause button with SVG icons */}
+            {/* Play/Pause button with SVG icons - now disabled when sample size reached */}
             <button
               className={`media-button ${isRunning ? 'pause' : 'play'} ${
                 isTurboRunning ? 'turbo-running' : ''
-              }`}
+              } ${sampleSizeReached ? 'disabled' : ''}`}
               onClick={() => !isTurboRunning && setIsRunning(!isRunning)}
-              disabled={isTurboRunning}
-              title={isRunning ? 'Pause Simulation' : 'Play Simulation'}
+              disabled={isTurboRunning || sampleSizeReached}
+              title={
+                sampleSizeReached
+                  ? 'Sample size reached, reset to run again'
+                  : isRunning
+                  ? 'Pause Simulation'
+                  : 'Play Simulation'
+              }
             >
               {isRunning ? pauseIcon : playIcon}
               <span>{isRunning ? 'Pause' : 'Play'}</span>
             </button>
 
-            {/* Stop button with SVG icon */}
+            {/* Reset button with refresh icon */}
             <button
-              className="media-button stop"
+              className="media-button reset"
               onClick={handleReset}
               disabled={isTurboRunning}
-              title="Stop and Reset Simulation"
+              title="Reset Simulation"
             >
-              {stopIcon}
-              <span>Stop</span>
+              {resetIcon}
+              <span>Reset</span>
             </button>
 
-            {/* Fast Forward button with SVG icon - now always enabled */}
+            {/* Fast Forward button with SVG icon - now disabled if sample size reached */}
             <button
               className={`media-button ff ${params.turboMode ? 'active' : ''}`}
               onClick={toggleFastForward}
-              title="Toggle Fast Forward Mode"
+              disabled={sampleSizeReached}
+              title={
+                sampleSizeReached
+                  ? 'Sample size reached, reset to run again'
+                  : 'Toggle Fast Forward Mode'
+              }
             >
               {fastForwardIcon}
               <span>{params.turboMode ? 'On' : 'Off'}</span>
             </button>
           </div>
+
+          {/* Show sample complete message when needed */}
+          {sampleSizeReached && (
+            <div className="sample-complete-message">
+              <span className="info-icon">✓</span>
+              <span>
+                Sample size reached. Press Reset to run another simulation.
+              </span>
+            </div>
+          )}
 
           {/* Speed slider */}
           <div className="slider-group">

@@ -963,3 +963,48 @@ input[type='range'] {
 }
 
 /* ...existing styles... */
+
+/* Updated reset button styles */
+.media-button.reset {
+  position: relative;
+}
+
+.media-button.reset svg {
+  transform-origin: center;
+  transform: rotate(0deg);
+  transition: transform 0.2s ease;
+}
+
+.media-button.reset:active:not(:disabled) svg {
+  transform: rotate(-180deg); /* Rotate on click for effect */
+}
+
+/* ...existing styles... */
+
+/* Add styling for the sample complete message */
+.sample-complete-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin: 12px 0 4px;
+  background-color: rgba(76, 175, 80, 0.1);
+  border-left: 3px solid #4caf50;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #2e7d32;
+}
+
+.sample-complete-message .info-icon {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+/* Style for disabled play button when sample is complete */
+.media-button.play.disabled,
+.media-button.pause.disabled {
+  background-color: #9e9e9e;
+  cursor: not-allowed;
+}
+
+/* ...existing styles... */

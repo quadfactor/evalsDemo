@@ -19,6 +19,11 @@ export function PopulationProvider({ children }) {
     turboSpeedMultiplier: 100,
   });
 
+  // Add state to track if sample size has been reached
+  const [sampleSizeReached, setSampleSizeReached] = useState(false);
+  // Add state to track total impressions
+  const [totalImpressions, setTotalImpressions] = useState(0);
+
   // Calculate required population size automatically
   const requiredPopulationSize = useMemo(() => {
     // Statistical formula for sample size calculation
@@ -59,6 +64,27 @@ export function PopulationProvider({ children }) {
   const [isRunning, setIsRunning] = useState(false);
   const [turboProgress, setTurboProgress] = useState(0); // Track progress in turbo mode
 
+  // Function to update total impressions
+  const updateTotalImpressions = useCallback(
+    (newTotal) => {
+      setTotalImpressions(newTotal);
+
+      // Check if sample size has been reached
+      if (newTotal >= requiredPopulationSize) {
+        setSampleSizeReached(true);
+        // Automatically stop simulation when sample size is reached
+        setIsRunning(false);
+      }
+    },
+    [requiredPopulationSize]
+  );
+
+  // Function to reset sample complete flag
+  const resetSampleComplete = useCallback(() => {
+    setSampleSizeReached(false);
+    setTotalImpressions(0);
+  }, []);
+
   return (
     <PopulationContext.Provider
       value={{
@@ -69,6 +95,10 @@ export function PopulationProvider({ children }) {
         requiredPopulationSize,
         turboProgress,
         setTurboProgress,
+        totalImpressions,
+        updateTotalImpressions,
+        sampleSizeReached,
+        resetSampleComplete,
       }}
     >
       {children}

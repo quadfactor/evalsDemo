@@ -15,7 +15,8 @@ function AppContent() {
     setIsRunning,
     requiredPopulationSize,
     setTurboProgress,
-    turboProgress, // Add this line to get turboProgress from context
+    turboProgress,
+    updateTotalImpressions, // Add this to update total impressions
   } = useContext(PopulationContext);
 
   // Results state for Variation A
@@ -37,6 +38,12 @@ function AppContent() {
     // Fixed batch size since FPS is now limited to max 30
     return 1; // Process impressions one by one for consistent simulation
   }, []);
+
+  // Update total impressions whenever impressions change
+  useEffect(() => {
+    const total = impressionsA + impressionsB;
+    updateTotalImpressions(total);
+  }, [impressionsA, impressionsB, updateTotalImpressions]);
 
   // Reset all simulation stats
   const resetAllStats = () => {
