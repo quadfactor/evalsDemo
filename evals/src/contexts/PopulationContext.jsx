@@ -16,12 +16,17 @@ export function PopulationProvider({ children }) {
     fps: 5, // Changed default from 3 to 5
     turboMode: false,
     turboSpeedMultiplier: 100, // Fixed at 100x speed
+    turboChunkSize: 10000, // Add chunk size parameter for turbo mode
+    turboPauseMs: 10, // Add pause between chunks in milliseconds
   });
 
   // Add state to track if sample size has been reached
   const [sampleSizeReached, setSampleSizeReached] = useState(false);
   // Add state to track total impressions
   const [totalImpressions, setTotalImpressions] = useState(0);
+  // Add state to track if we're running a chunked operation
+  const [isChunkedOperationRunning, setIsChunkedOperationRunning] =
+    useState(false);
 
   // Calculate required population size automatically
   const requiredPopulationSize = useMemo(() => {
@@ -102,6 +107,8 @@ export function PopulationProvider({ children }) {
         updateTotalImpressions,
         sampleSizeReached,
         resetSampleComplete,
+        isChunkedOperationRunning,
+        setIsChunkedOperationRunning,
       }}
     >
       {children}

@@ -13,6 +13,7 @@ function PopulationSettings({ onResetSimulation }) {
     sampleSizeReached, // Add this to track if sample size is reached
     resetSampleComplete, // Add this function to reset sample complete flag
     setTurboProgress, // Add this prop to ensure we have access to it
+    isChunkedOperationRunning,
   } = useContext(PopulationContext);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
 
@@ -30,6 +31,11 @@ function PopulationSettings({ onResetSimulation }) {
 
   // Handle reset simulation
   const handleReset = () => {
+    // Don't allow reset while a chunked operation is in progress
+    if (isChunkedOperationRunning) {
+      return;
+    }
+
     // Stop the simulation first
     setIsRunning(false);
 
@@ -102,6 +108,11 @@ function PopulationSettings({ onResetSimulation }) {
   const toggleFastForward = () => {
     // Don't allow enabling if sample size reached
     if (sampleSizeReached && !params.turboMode) {
+      return;
+    }
+
+    // Don't allow toggling while a chunked operation is in progress
+    if (isChunkedOperationRunning) {
       return;
     }
 
@@ -182,15 +193,25 @@ function PopulationSettings({ onResetSimulation }) {
 
         <div className="settings-group">
           <div className="media-controls">
-            {/* Play/Pause button with SVG icons - now disabled when sample size reached */}
+            {/* Play/Pause button with SVG icons - now disabled when sample size reached or chunked operation running */}
             <button
               className={`media-button ${isRunning ? 'pause' : 'play'} ${
-                isTurboRunning ? 'turbo-running' : ''
+                isTurboRunning || isChunkedOperationRunning
+                  ? 'turbo-running'
+                  : ''
               } ${sampleSizeReached ? 'disabled' : ''}`}
-              onClick={() => !isTurboRunning && setIsRunning(!isRunning)}
-              disabled={isTurboRunning || sampleSizeReached}
+              onClick={() =>
+                !isTurboRunning &&
+                !isChunkedOperationRunning &&
+                setIsRunning(!isRunning)
+              }
+              disabled={
+                isTurboRunning || sampleSizeReached || isChunkedOperationRunning
+              }
               title={
-                sampleSizeReached
+                isChunkedOperationRunning
+                  ? 'Simulation processing in chunks, please wait...'
+                  : sampleSizeReached
                   ? 'Sample size reached, reset to run again'
                   : isRunning
                   ? 'Pause Simulation'
@@ -201,24 +222,30 @@ function PopulationSettings({ onResetSimulation }) {
               <span>{isRunning ? 'Pause' : 'Play'}</span>
             </button>
 
-            {/* Reset button with refresh icon */}
+            {/* Reset button with refresh icon - disabled during chunked operations */}
             <button
               className="media-button reset"
               onClick={handleReset}
-              disabled={isTurboRunning}
-              title="Reset Simulation"
+              disabled={isTurboRunning || isChunkedOperationRunning}
+              title={
+                isChunkedOperationRunning
+                  ? 'Simulation processing in chunks, please wait...'
+                  : 'Reset Simulation'
+              }
             >
               {resetIcon}
               <span>Reset</span>
             </button>
 
-            {/* Fast Forward button with SVG icon - now with fixed 100x speed */}
+            {/* Fast Forward button with SVG icon - disabled during chunked operations */}
             <button
               className={`media-button ff ${params.turboMode ? 'active' : ''}`}
               onClick={toggleFastForward}
-              disabled={sampleSizeReached}
+              disabled={sampleSizeReached || isChunkedOperationRunning}
               title={
-                sampleSizeReached
+                isChunkedOperationRunning
+                  ? 'Simulation processing in chunks, please wait...'
+                  : sampleSizeReached
                   ? 'Sample size reached, reset to run again'
                   : 'Toggle Fast Forward Mode (100x speed)'
               }
@@ -228,8 +255,19 @@ function PopulationSettings({ onResetSimulation }) {
             </button>
           </div>
 
+          {/* Add a special message during chunked operation */}
+          {isChunkedOperationRunning && (
+            <div className="sample-complete-message">
+              <span className="info-icon">⏱️</span>
+              <span>
+                Processing large simulation in chunks to prevent browser
+                freezing...
+              </span>
+            </div>
+          )}
+
           {/* Show sample complete message when needed */}
-          {sampleSizeReached && (
+          {sampleSizeReached && !isChunkedOperationRunning && (
             <div className="sample-complete-message">
               <span className="info-icon">✓</span>
               <span>
