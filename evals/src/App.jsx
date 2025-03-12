@@ -2,6 +2,7 @@ import { useState, useEffect, useContext, useMemo, useCallback } from 'react';
 import ButtonForm from './components/ButtonForm';
 import Results from './components/Results';
 import PopulationSettings from './components/PopulationSettings';
+import SimulationControls from './components/SimulationControls';
 import {
   PopulationProvider,
   PopulationContext,
@@ -379,6 +380,9 @@ function AppContent() {
           />
         </div>
       </div>
+
+      {/* Add the new SimulationControls component below the variations */}
+      <SimulationControls onResetSimulation={resetAllStats} />
     </div>
   );
 }
